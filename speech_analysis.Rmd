@@ -9,3 +9,108 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+Trump 2025 speech
+```{r}
+library(tidyverse)
+library(readr)
+
+
+# We remove the parts where the president was not talking
+trump2025 <- read_lines("data/Trump_2025")
+
+texto_filtrado_2025 <- trump2025 %>%
+  str_subset("^(AUDIENCE|SPEAKER|VICE PRESIDENT|REPRESENTATIVE GREEN|SPEAKER jOHNSON)", negate = TRUE)
+texto_filtrado_2025
+
+# we remove the parenthesis
+texto_filtrado <- texto_filtrado_2025 %>%
+  str_replace_all("\\(.*?\\)", "")
+texto_filtrado_2025
+
+# we remove "THE PRESIDENT:"
+
+texto_final_2025 <- str_replace(texto_filtrado_2025, "^THE PRESIDENT:\\s*", "")
+texto_final_2025
+# we remove empty rows
+texto_final_2025 <- texto_final_2025[nchar(trimws(texto_final_2025)) > 0]
+texto_final_2025
+```
+
+Trump 2017 speech
+
+
+```{r}
+# We remove the parts where the president was not talking
+trump2017 <- read_lines("data/Trump_2017")
+
+texto_filtrado_2017 <- trump2017 %>%
+  str_subset("^(AUDIENCE|SPEAKER|VICE PRESIDENT|REPRESENTATIVE GREEN|SPEAKER jOHNSON)", negate = TRUE)
+texto_filtrado_2017
+
+# we remove the parenthesis
+texto_filtrado_2017 <- texto_filtrado_2017 %>%
+  str_replace_all("\\(.*?\\)", "")
+texto_filtrado_2017
+
+# we remove "THE PRESIDENT:"
+
+texto_final_2017 <- str_replace(texto_filtrado_2017, "^THE PRESIDENT:\\s*", "")
+texto_final_2017
+# we remove empty rows
+texto_final_2017 <- texto_final_2017[nchar(trimws(texto_final_2017)) > 0]
+texto_final_2017
+
+```
+
+Biden 2021 speech
+
+```{r}
+# We remove the parts where the president was not talking
+biden2021 <- read_lines("data/Biden_2021")
+
+texto_filtrado_2021 <- biden2021 %>%
+  str_subset("^(AUDIENCE|SPEAKER|VICE PRESIDENT|REPRESENTATIVE GREEN|SPEAKER jOHNSON)", negate = TRUE)
+texto_filtrado_2021
+
+# we remove the parenthesis
+texto_filtrado_2021 <- texto_filtrado_2021 %>%
+  str_replace_all("\\(.*?\\)", "")
+texto_filtrado_2021
+
+# we remove "THE PRESIDENT:"
+
+texto_final_2021 <- str_replace(texto_filtrado_2021, "^THE PRESIDENT:\\s*", "")
+texto_final_2021
+# we remove empty rows
+texto_final_2021 <- texto_final_2021[nchar(trimws(texto_final_2021)) > 0]
+texto_final_2021
+
+```
+
+
+Obama 2013 speech
+
+```{r}
+# We remove the parts where the president was not talking
+obama2013 <- read_lines("data/Obama_2013")
+
+texto_filtrado_2013 <- obama2013 %>%
+  str_subset("^(AUDIENCE|SPEAKER|VICE PRESIDENT|REPRESENTATIVE GREEN|SPEAKER jOHNSON)", negate = TRUE)
+texto_filtrado_2013
+
+# we remove the parenthesis
+texto_filtrado_2013 <- texto_filtrado_2013 %>%
+  str_replace_all("\\(.*?\\)", "")
+texto_filtrado_2013
+
+# we remove "THE PRESIDENT:"
+
+texto_final_2013 <- str_replace(texto_filtrado_2013, "^THE PRESIDENT:\\s*", "")
+texto_final_2013
+# we remove empty rows
+texto_final_2013 <- texto_final_2013[nchar(trimws(texto_final_2013)) > 0]
+
+texto_final_2013
+
+```
+
