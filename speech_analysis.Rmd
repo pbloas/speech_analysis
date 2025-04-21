@@ -1,5 +1,5 @@
 ---
-title: "Speech Analysis"
+title: "From Obama to Trump: Changes in Presidential Language in the U.S.A. (2013–2025)"
 author: "Pablo Aísa, Diego Fernández and Irantzu Lamarca"
 date: "2025-04-25"
 output: html_document
@@ -9,108 +9,326 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-Trump 2025 speech
+## Introduction
+
+Trump's second investiture in the United States began just a few months ago and has revolutionised the world as we know it with his various economic and social measures. What has probably been most striking is the tone he has used to refer to other countries and their relationship with the United States. Trump's figure and his discourse were already known worldwide since he won the election in 2017, but the scene has been changing over the years. With his rapprochement with Russia in the Ukraine war and his direct confrontation with the European Union and China, Western relations in recent years have been weakened in recent months.
+
+For this reason, we have decided to focus this paper on analysing the speeches of recent presidents in the US Congress. In this way, we want to see what differences there are between the speeches of the three presidents (Donald Trump, Joe Biden and Barack Obama) and to see specifically how Donald Trump in 2025 differs from the rest.
+
+It would indeed have been more appropriate to use the inaugural speeches that different presidents make once they have won the elections and are sworn in as such. However, these speeches are generally shorter. For this reason, we have chosen to select the first speeches made by each of the presidents in their presentation to Congress.
+
+-   [Remarks by the President in the State of the Union Address, Obama 2013](https://obamawhitehouse.archives.gov/the-press-office/2013/02/12/remarks-President-state-union-address)
+-   [Remarks by President Trump in Joint Address to Congress 2017](https://trumpwhitehouse.archives.gov/briefings-statements/remarks-president-trump-joint-address-congress/)
+-   [Remarks by President Biden in Address to a Joint Session of Congress 2021](https://bidenwhitehouse.archives.gov/briefing-room/speeches-remarks/2021/04/29/remarks-by-president-biden-in-address-to-a-joint-session-of-congress/)
+-   [Remarks by President Trump in Joint Address to Congress 2025](https://www.whitehouse.gov/remarks/2025/03/remarks-by-president-trump-in-joint-address-to-congress/)
+
+In order to be able to analyse these texts as comprehensively as possible, we will use three text analysis techniques. The three techniques chosen are: *Sentiment Analysis*, *Term Frequency* and *Topic Modeling*. These tools will be used separately, but will be presented together at the end of the work in order to draw conclusive results on the different discourses.
+
+## Libraries
+
+Firstly, we load the libraries that will be used in this project.
+
 ```{r}
 library(tidyverse)
 library(readr)
+library(tidytext)
+```
 
+## Data cleaning
 
+The first step will consist on obtaining the data and cleaning it to be able to further process the texts. The different speeches selected were prepared and transformed into a *.txt document* so they can be easily read in *Rstudio*.
+
+### Trump 2025
+
+We start with the last speech available which is the one that Trump made at the beginning of March 2025.
+
+```{r}
 # We remove the parts where the president was not talking
 trump2025 <- read_lines("data/Trump_2025")
 
-texto_filtrado_2025 <- trump2025 %>%
+trump2025_filtered <- trump2025 %>%
   str_subset("^(AUDIENCE|SPEAKER|VICE PRESIDENT|REPRESENTATIVE GREEN|SPEAKER jOHNSON)", negate = TRUE)
-texto_filtrado_2025
 
 # we remove the parenthesis
-texto_filtrado <- texto_filtrado_2025 %>%
+trump2025_filtered <- trump2025_filtered %>%
   str_replace_all("\\(.*?\\)", "")
-texto_filtrado_2025
 
 # we remove "THE PRESIDENT:"
-
-texto_final_2025 <- str_replace(texto_filtrado_2025, "^THE PRESIDENT:\\s*", "")
-texto_final_2025
+final_text_2025 <- str_replace(trump2025_filtered, "^THE PRESIDENT:\\s*", "")
 # we remove empty rows
-texto_final_2025 <- texto_final_2025[nchar(trimws(texto_final_2025)) > 0]
-texto_final_2025
+final_text_2025 <- final_text_2025[nchar(trimws(final_text_2025)) > 0]
+
 ```
 
-Trump 2017 speech
+Now we apply the same changes to the rest of the documents.
 
+### Trump 2017
 
 ```{r}
 # We remove the parts where the president was not talking
 trump2017 <- read_lines("data/Trump_2017")
 
-texto_filtrado_2017 <- trump2017 %>%
+trump2017_filtered <- trump2017 %>%
   str_subset("^(AUDIENCE|SPEAKER|VICE PRESIDENT|REPRESENTATIVE GREEN|SPEAKER jOHNSON)", negate = TRUE)
-texto_filtrado_2017
 
 # we remove the parenthesis
-texto_filtrado_2017 <- texto_filtrado_2017 %>%
+trump2017_filtered <- trump2017_filtered %>%
   str_replace_all("\\(.*?\\)", "")
-texto_filtrado_2017
 
 # we remove "THE PRESIDENT:"
-
-texto_final_2017 <- str_replace(texto_filtrado_2017, "^THE PRESIDENT:\\s*", "")
-texto_final_2017
+final_text_2017 <- str_replace(trump2017_filtered, "^THE PRESIDENT:\\s*", "")
 # we remove empty rows
-texto_final_2017 <- texto_final_2017[nchar(trimws(texto_final_2017)) > 0]
-texto_final_2017
+final_text_2017 <- final_text_2017[nchar(trimws(final_text_2017)) > 0]
 
 ```
 
-Biden 2021 speech
+### Biden 2021
 
 ```{r}
 # We remove the parts where the president was not talking
 biden2021 <- read_lines("data/Biden_2021")
 
-texto_filtrado_2021 <- biden2021 %>%
+biden2021_filtered <- biden2021 %>%
   str_subset("^(AUDIENCE|SPEAKER|VICE PRESIDENT|REPRESENTATIVE GREEN|SPEAKER jOHNSON)", negate = TRUE)
-texto_filtrado_2021
 
 # we remove the parenthesis
-texto_filtrado_2021 <- texto_filtrado_2021 %>%
+biden2021_filtered <- biden2021_filtered %>%
   str_replace_all("\\(.*?\\)", "")
-texto_filtrado_2021
 
 # we remove "THE PRESIDENT:"
-
-texto_final_2021 <- str_replace(texto_filtrado_2021, "^THE PRESIDENT:\\s*", "")
-texto_final_2021
+final_text_2021 <- str_replace(biden2021_filtered, "^THE PRESIDENT:\\s*", "")
 # we remove empty rows
-texto_final_2021 <- texto_final_2021[nchar(trimws(texto_final_2021)) > 0]
-texto_final_2021
-
+final_text_2021 <- final_text_2021[nchar(trimws(final_text_2021)) > 0]
 ```
 
-
-Obama 2013 speech
+### Obama 2013
 
 ```{r}
 # We remove the parts where the president was not talking
 obama2013 <- read_lines("data/Obama_2013")
 
-texto_filtrado_2013 <- obama2013 %>%
+obama2013_filtered <- obama2013 %>%
   str_subset("^(AUDIENCE|SPEAKER|VICE PRESIDENT|REPRESENTATIVE GREEN|SPEAKER jOHNSON)", negate = TRUE)
-texto_filtrado_2013
 
 # we remove the parenthesis
-texto_filtrado_2013 <- texto_filtrado_2013 %>%
+obama2013_filtered <- obama2013_filtered %>%
   str_replace_all("\\(.*?\\)", "")
-texto_filtrado_2013
 
 # we remove "THE PRESIDENT:"
-
-texto_final_2013 <- str_replace(texto_filtrado_2013, "^THE PRESIDENT:\\s*", "")
-texto_final_2013
+final_text_2013 <- str_replace(obama2013_filtered, "^THE PRESIDENT:\\s*", "")
 # we remove empty rows
-texto_final_2013 <- texto_final_2013[nchar(trimws(texto_final_2013)) > 0]
-
-texto_final_2013
+final_text_2013 <- final_text_2013[nchar(trimws(final_text_2013)) > 0]
 
 ```
 
+## Text processing
+
+### Sentiment analysis
+
+### Term frequency
+
+#### Most frequently used words
+
+The next tool that will be used is the *term frequency* (TF), but also including IDF and TF-IDF.
+
+We start by analysing the most often used words. Firstly we will obtain the most frequent words in the whole speeches and then the total number of words per president.
+
+```{r}
+obama2013 <- paste(final_text_2013, collapse = " ")
+trump2017 <- paste(final_text_2017, collapse = " ")
+biden2021 <- paste(final_text_2021, collapse = " ")
+trump2025 <- paste(final_text_2025, collapse = " ")
+
+speech <- tibble(
+  year = as.factor(c(2013, 2017, 2021, 2025)),
+  text = c(obama2013, trump2017, biden2021, trump2025))
+
+speech_total <- speech %>%
+  unnest_tokens(word, text) %>%
+  count(word, sort = TRUE)
+
+speech_total
+```
+
+Now we have a dataframe with the number of times each word appears in all the texts available. The next step is to obtain the number of times the words appear in each speech.
+
+```{r}
+speech_words <- speech %>%
+  unnest_tokens(word, text) %>%
+  count(year, word, sort = TRUE)
+```
+
+In order to be able to proceed further with the analysis of term frequency, we sum up the total number of words in each speech. Then we have to add these numbers to the dataframe created to use them in the following steps.
+
+In this case we have not filtered out the stop words as they are necessary to obtain the total number of words in each of the texts.
+
+```{r}
+total_words <- speech_words %>% 
+  group_by(year) %>% 
+  summarize(total = sum(n)) # Number of words per speech
+
+speech_words <- left_join(speech_words, total_words) 
+# We keep all the variables in the df
+speech_words
+```
+
+With this information we can now obtain the term frequency distribution for each of the speeches we have selected. This data is obtained by dividing the number of times a word appears in a text divided by the total number of terms (words) in that text.
+
+```{r}
+speech_words <- speech_words %>%
+  # We add a column for term_frequency
+  mutate(term_frequency = n/total)
+
+speech_words
+```
+
+Let's make a plot to see how words are distributed in each discourse.
+
+```{r}
+ggplot(speech_words, aes(term_frequency, fill = year)) +
+  geom_histogram(show.legend = TRUE) +
+  facet_wrap(~ year, ncol = 2, scales = "free_y") +
+  scale_fill_brewer(palette = "Set2") +
+  theme_minimal()
+```
+
+As can be seen, there is a similar distribution for all years: most words have very low frequencies and a few words have very high frequencies.
+
+Let's look at the distribution of less frequent words.
+
+```{r}
+ggplot(speech_words, aes(term_frequency, fill = year)) +
+  geom_histogram(show.legend = TRUE) +
+  xlim(NA, 0.001) +
+  facet_wrap(~ year, ncol = 2, scales = "free_y") +
+  scale_fill_brewer(palette = "Set2") +
+  theme_minimal()
+```
+
+The distribution seems to remain very similar for all speeches, with the number of words decreasing with increasing frequency.
+
+Once we have been able to work with the term frequency tool, we can move forward using a number of other measures that can help us to learn more about these texts.
+
+#### Zipf's Law
+
+The next tool that we will use is the *Zipf’s Law*. This law states that a word’s frequency is inversely proportional to its rank in a frequency list: the most common words appear most often, while rare words have higher ranks and appear less frequently.
+
+Let's create a new dataframe for our data with a new column that ranks the words in descending order by their term frequency.
+
+```{r}
+freq_by_rank <- speech_words %>% 
+  group_by(year) %>% 
+  mutate(rank = row_number()) %>%
+  ungroup()
+
+freq_by_rank
+```
+
+Let's visualise in a line graph the inversely proportional relationship between TF and the rank of the words we are working with.
+
+```{r}
+freq_by_rank %>% 
+  ggplot(aes(rank, term_frequency, color = year)) + 
+  geom_line(size = 1.1, alpha = 0.8, show.legend = FALSE) + 
+  scale_x_log10() +
+  scale_y_log10() +
+  scale_color_brewer(palette = "Set2") +
+  theme_minimal()
+```
+
+The logarithmic scale shows that there is a constant negative slope. However, as it can be seen, there are some slight differences in the distributions of the four discourses. To understand these variations, we need to divide the graph into three parts and analyse them separately.
+
+It seems that the central part is the most stable, as it is where all the distributions coincide the most. In order to better analyse the texts, we will create a linear regression model using this central section and then display it in the graph. In this way, we use this section as a normal use of the language and we can check how much the other sections differ.
+
+```{r}
+rank_subset <- freq_by_rank %>% # We store the section in a new variable
+  filter(rank < 400,
+         rank > 10) # Ranks between 400 and 10
+
+# We use the linear model function
+lm(log10(term_frequency) ~ log10(rank), data = rank_subset)
+
+# We visualize it on the graph by adding a reference line
+freq_by_rank %>% 
+  ggplot(aes(rank, term_frequency, color = year)) + 
+  geom_abline(intercept = -0.62, slope = -1.1, 
+              color = "gray30", linetype = 2) +
+  geom_line(size = 1.1, alpha = 0.8, show.legend = FALSE) + 
+  scale_x_log10() +
+  scale_y_log10() +
+  scale_color_brewer(palette = "Set2") +
+  theme_minimal()
+  
+```
+
+The most important thing to note in this graph is that less frequent words appear more frequently in these discourses. It may imply that these speeches are either very issue-specific or use more artificial language as a political tool. We will take this into account for the next steps.
+
+#### Obtaining the TF-IDF
+
+The next step is to obtain the IDF and then combine it with the term frequency measure. To do this, we just have to apply the *bind_tf_idf* from the *tidytext* package to our dataset.
+
+```{r}
+speech_tf_idf <- speech_words %>%
+  bind_tf_idf(word, year, n) %>% # We obtain three new columns
+  select(-term_frequency) # We can drop the TF that we had before 
+
+speech_tf_idf
+```
+
+The first words that appear have a TF-IDF close to zero because they are used so often. It can be observed that these are the same words for the four discourses analysed (*for*, *and*, *the*, *of*...).
+
+Let's sort them in descending order according to the TF-IDF measure to see the strangest words in the whole collection.
+
+```{r}
+sorted_tf_idf <- speech_tf_idf %>%
+  select(-total) %>% # This column is not necessary anymore
+  arrange(desc(tf_idf))
+
+sorted_tf_idf
+```
+
+What is most striking is the number of times Trump uses the adverb *very* in 2025. On the other hand, as the date is very close to the Covid-19 pandemic, it is logical to see that Biden in 2021 is by far the one who uses the word *pandemic* the most.
+
+In order to better observe the differences between the four speeches, we will group the words by year and thus obtain the 10 most special words of each of them in comparison with the rest.
+
+```{r}
+# Modify the titles of each graph
+president <- c(
+  "2013" = "Obama (2013)",
+  "2017" = "Trump (2017)",
+  "2021" = "Biden (2021)",
+  "2025" = "Trump (2025)")
+
+# We create the plot
+plot_speech <- speech_tf_idf %>% 
+  group_by(year) %>% 
+  slice_max(tf_idf, n = 10) %>% 
+  ungroup() %>%
+  mutate(word = reorder(word, tf_idf)) %>%
+  ggplot(aes(tf_idf, word, fill = year)) +
+  geom_col(show.legend = FALSE) +
+  labs(x = "tf-idf", y = NULL) +
+  facet_wrap(~ year, ncol = 2, 
+             scales = "free",
+             # President and year for the titles
+             labeller = labeller(year = president)) +
+  # We modify the limits to compare better the differences
+  scale_x_continuous(limits = c(0, 0.0025)) +
+  scale_fill_brewer(palette = "Set2") +
+  theme_minimal() +
+  theme(
+    axis.title = element_text(size = 10, face = "bold"),
+    strip.text = element_text(size = 10, face = "bold"))
+
+plot_speech
+```
+
+As can be seen in these bar plots, the conclusions are similar to those previously discussed. Analysing each speech separately, it is striking that Obama in 2013 uses initiative-laden language using words such as let's or encourage. On the other hand, Biden's speech in 2021 is loaded with mentions of covid and vaccines, although the importance of guns is also very relevant.
+
+On the other hand, analysing Trump's speeches separately also allows for some very relevant conclusions. The first thing that stands out in the 2017 speech is the multiple mentions of [*Obamacare*](https://www.usa.gov/es/salud-mercado-seguros-medicos-aca) and health insurance. These data denote a clear criticism of Barack Obama's previous government, which is complemented by personal stories using personal names (which also appear in the most relevant words of this speech). In 2025 it highlights the importance he attaches in his speech to Ukraine and to the tariff measures he had previously announced. The rest of the words do not provide us with much more information beyond being words that we need to understand in context.
+
+With the sentiment analysis and term frequency tools, we were able to get an idea of the content and characteristics of the discourses. However, it is necessary to supplement these results with topic modelling in order to draw more developed conclusions.
+
+### Topic modeling
+
+## Conclusion
