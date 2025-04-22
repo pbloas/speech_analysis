@@ -40,6 +40,9 @@ library(scales)
 library(knitr)
 library(kableExtra)
 library(proxy)
+library(wordcloud)
+library(RColorBrewer)
+library(reshape2)
 ```
 
 We will use these libraries for: 
@@ -138,6 +141,279 @@ final_text_2013 <- final_text_2013[nchar(trimws(final_text_2013)) > 0]
 ## Text processing
 
 ### Sentiment analysis
+
+Let´s create a dataframe with all the text we want to analyze
+
+```{r}
+# Trump 2025
+tidy_trump_2025 <- as.data.frame(texto_final_2025) %>%
+  mutate(
+    speech = "Trump_2025",
+    linenumber = row_number()
+  )
+tidy_trump_2025
+
+# Trump 2017
+
+tidy_trump_2017 <- as.data.frame(texto_final_2017) %>%
+  mutate(
+    speech = "Trump_2017",
+    linenumber = row_number()
+  )
+tidy_trump_2017
+
+# Obama 2013
+
+tidy_obama_2013 <- as.data.frame(texto_final_2013) %>%
+  mutate(
+    speech = "Obama_2013",
+    linenumber = row_number()
+  )
+tidy_obama_2013
+
+# Biden 2021
+
+tidy_biden_2021 <- as.data.frame(texto_final_2021) %>%
+  mutate(
+    speech = "Biden_2021",
+    linenumber = row_number()
+  )
+tidy_biden_2021
+
+# tokenizing
+
+tidy_trump_2025 <- tidy_trump_2025 %>%
+  unnest_tokens(word, texto_final_2025)
+
+tidy_trump_2025
+
+tidy_trump_2017 <- tidy_trump_2017 %>%
+  unnest_tokens(word, texto_final_2017)
+tidy_trump_2017
+
+tidy_obama_2013 <- tidy_obama_2013 %>%
+  unnest_tokens(word, texto_final_2013)
+tidy_obama_2013
+
+tidy_biden_2021 <- tidy_biden_2021 %>%
+  unnest_tokens(word, texto_final_2021)
+tidy_biden_2021
+
+
+# Let´s join all the tables:
+
+sentiment_data <- bind_rows(
+  tidy_trump_2025, tidy_trump_2017, 
+  tidy_biden_2021, tidy_obama_2013)
+sentiment_data
+# we will not be filtering stopwords since most stopwords (like the, and, is, etc.) are not associated with any emotions in NRC — so they will simply not be counted.
+
+```
+
+
+What are the most common joy words during the last Trump speech?
+What are the most common fear wordsduring the last Trump speech?
+
+```{r}
+# joy
+nrc_joy <- get_sentiments("nrc") %>% 
+  filter(sentiment == "joy")
+
+trump2025_joy_words <- sentiment_data %>%
+    filter(speech == "Trump_2025") %>%
+    inner_join(nrc_joy) %>%
+    count(word, sort = TRUE)
+
+trump2025_joy_words
+
+# fear
+nrc_fear <- get_sentiments("nrc") %>% 
+  filter(sentiment == "fear")
+
+trump2025_fear_words <- sentiment_data %>%
+    filter(speech == "Trump_2025") %>%
+    inner_join(nrc_fear) %>%
+    count(word, sort = TRUE)
+
+trump2025_fear_words
+```
+In Trump’s 2025 inaugural speech, the most frequent joy-related words include “good” (20),    “money” (18), “beautiful” (17), “love” (13), “luck” (9), “pay” (8), “daughter” (7), “child” (6), “create” (6), and “successful” (6). These words could reflect a strong emphasis on prosperity, traditional family values, and personal success, these words could aim to inspire confidence in economic growth and cultural pride. 
+
+Simultaneously, the most common fear-related words: “dangerous” (9), “government” (9), “military” (9), “fight” (8), “illegal” (8), “police” (8), “bad” (7), “inflation” (7), “gang” (6), and “powerful” (5) highlight a narrative of threat and instability, pointing toward concerns about crime, public safety, institutional power, and economic insecurity. The fact that he also mentioned words like “love” and “beautiful” with alarming terms like “dangerous” and “fight” could reveal a strategy centered on contrast: portraying Trump as the defender of a prosperous, idealized America under threat from forces both internal and external.
+
+
+let´s examine how sentiment changes throughout each speech
+
+```{r}
+
+evolution_sentiment <- sentiment_data %>%
+  #find the sentiment for each word using bing
+  inner_join(get_sentiments("bing")) %>%
+  #divide each book in chunks of 80 lines
+  count(speech, index = linenumber %/% 80, sentiment) %>%
+  #we write positive and negative in different columns
+  pivot_wider(names_from = sentiment, values_from = n, values_fill = 0) %>%
+  #we substract positive minus negative to find a net sentiment
+  mutate(sentiment = positive - negative)
+
+evolution_sentiment
+
+# We can plot these sentiment scores across the plot trajectory of each speech following the chunks of 80 lines.
+
+ggplot(evolution_sentiment, aes(index, sentiment, fill = speech)) +
+  geom_col(show.legend = TRUE) +
+  facet_wrap(~speech, ncol = 2, scales = "free_x")
+
+```
+
+The sentiment trajectory across the four inaugural speeches reveals some differences.
+Trump’s 2025 speech shows the highest variability, with sentiment increasing steadily across chunks and peaking in the middle, suggesting a deliberate emotional buildup aimed at energizing and inspiring his audience toward the end.
+
+In contrast, Trump’s 2017 address maintains a more uniform tone with moderate sentiment, indicating a focus on identifying problems without an emotionally charged resolution. 
+
+Obama’s 2013 speech is characterized by steady, more positive sentiment, while Biden’s 2021 speech shows a quick rise in sentiment early on, likely offering hope after acknowledging national challenges, before dipping back to a more neutral tone.
+
+
+Let's find out how much each word in the speeches contributes to each sentiment. This is: how many times each word appears in the speeches, and which sentiment it is associated to:
+```{r}
+bing_word_counts <- sentiment_data %>%
+  #get sentiment from bing
+  inner_join(get_sentiments("bing")) %>%
+  #count the number of mentions for each word
+  count(word, sentiment, sort = TRUE)
+
+bing_word_counts
+
+
+
+
+bing_word_counts %>%
+  group_by(sentiment) %>%
+  slice_max(n, n = 15) %>% 
+  ungroup() %>%
+  mutate(word = reorder(word, n)) %>%
+  ggplot(aes(n, word, fill = sentiment)) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~sentiment, scales = "free_y") +
+  labs(x = "Contribution to sentiment",
+       y = NULL)
+```
+This graph highlights the individual words with the greatest contribution to overall positive and negative sentiment across all the inaugural speeches.
+
+On the positive side, the most influential word is "thank", far surpassing others in frequency, suggesting a strong tone of gratitude and acknowledgment (common in inaugural addresses that express appreciation to supporters). Following closely are words like “great,” “like,” “right,” “work,” and “good,” which convey optimism and approval, all values typically emphasized in presidential rhetoric to inspire unity and forward momentum.
+
+On the other hand, the most frequent negative word is “hard,” which can carry a neutral connotation depending on context ("hard work" vs "hard times"), but is still tagged as negative. Other key contributors include “dangerous,” “crisis,” “illegal,” “poverty,” “terrorism,” and “crime,” all of which suggest concern, urgency, or threat. These terms reflect the speeches’ acknowledgment of national and global challenges.
+
+Altogether, the balance of words like “love” and “support” with “crisis” and “threat”
+can reflect a common dual strategy in political discourse: evoking risk and danger to justify action, while simultaneously promising strength, unity, and improvement.
+
+
+which speech has the highest proportion of negative words?
+which speech has the highest proportion of positive words?
+
+```{r}
+# Negative words ratio
+
+#filter negative words from Bing
+bingnegative <- get_sentiments("bing") %>% 
+  filter(sentiment == "negative")
+
+# make a dataframe (wordcounts) with number of words per speech
+wordcounts <- sentiment_data %>%
+  group_by(speech) %>%
+  summarize(word = n())
+
+wordcounts
+
+
+#let´s find the number of negative words by speech 
+sentiment_data %>%
+  #semi_join: returns all words in speech with a match in bingnegative
+  semi_join(bingnegative) %>%
+  #group by speech to summarize how many negative words
+  group_by(speech) %>%
+  summarize(negativewords = n()) %>%
+  #left_join keeps all words in wordcounts and makes a dataframe
+  left_join(wordcounts, by = "speech") %>%
+  #create a column in the dataframe with the ratio
+  mutate(ratio = negativewords/word) %>%
+  #we select the highest ratios
+  slice_max(ratio, n = 4) %>% 
+  ungroup()
+
+
+# Positive words ratio
+
+bingpositive <- get_sentiments("bing") %>% 
+  filter(sentiment == "positive")
+
+sentiment_data %>%
+  semi_join(bingpositive) %>%
+  group_by(speech) %>%
+  summarize(positivewords = n()) %>%
+  left_join(wordcounts, by = "speech") %>%
+  mutate(ratio = positivewords/word) %>%
+  slice_max(ratio, n = 4)
+
+```
+We calculated the number of negative terms (using the Bing lexicon) relative to the total word count for each speech. The results show that Trump’s 2017 speech had the highest negativity ratio, with about 2.66% of its words classified as negative. This is followed by Trump 2025 (2.34%), Biden 2021 (2.21%), and Obama 2013 (1.80%).
+
+This means that Trump's 2017 address stands out as the most negative, proportionally speaking. This aligns with the tone widely observed in that speech, which focused heavily on themes of national decline, threats, and a promise to radically change direction, often using stark or combative language. In contrast, Obama’s speech had the lowest proportion of negative words, reflecting a more optimistic, hopeful, and unifying rhetorical approach.
+
+On the other hand, The next table compares the use of positive words ratios. Trump's 2025 speech stands out with the highest proportion of positive words, at 5.29%, suggesting a more optimistic tone. His 2017 speech also features a relatively high percentage of positive words (4.88%), indicating a similarly positive tone. Obama's 2013 speech shows a slightly lower ratio of 4.72%, reflecting a balanced but still positive rhetoric. In contrast, Biden's 2021 speech has the lowest ratio of positive words, at 3.42%, which could imply a more measured or serious tone.
+
+wordcloud representation
+
+```{r}
+sentiment_data %>%
+  #we filter stopwords
+  anti_join(stop_words) %>%
+  #we count words
+  count(word) %>%
+  #we use the wordcloud function
+  with(wordcloud(word, n, max.words = 60))
+
+#set the colors from a brewer palette. 8 is the number of colors used from Dark2 palette.
+colors = brewer.pal(10, 'Dark2')
+
+sentiment_data %>%
+  anti_join(stop_words) %>%
+  count(word) %>%
+  #we add colors as an argument
+  with(wordcloud(word, n, max.words = 90, colors = colors))
+
+
+# Compare 2 wordclouds (positive wordcloud with negative wordcloud)
+
+sentiment_data %>%
+  #we get sentiments
+  inner_join(get_sentiments("bing")) %>%
+  #we count word mentions
+  count(word, sentiment, sort = TRUE) %>%
+  #we establish criteria for size
+  acast(word ~ sentiment, value.var = "n", fill = 0) %>%
+  #we paint two wordclouds in one using two different colors
+  comparison.cloud(colors = c("blue", "green"),
+                   max.words = 100)
+
+# same wordcloud but only restricted to one speech from Trump
+
+sentiment_data %>%
+  filter(speech == "Trump_2025") %>%
+  #we get sentiments
+  inner_join(get_sentiments("bing")) %>%
+  #we count word mentions
+  count(word, sentiment, sort = TRUE) %>%
+  #we establish criteria for size
+  acast(word ~ sentiment, value.var = "n", fill = 0) %>%
+  #we paint two wordclouds in one using two different colors
+  comparison.cloud(colors = c("blue", "green"),
+                   max.words = 100)
+
+```
+The wordcloud for Trump’s 2025 speech visually highlights the contrast between positive (green) and negative (blue) language. The largest and most dominant word is “thank,” reflecting a strong positive sentiment (likely due to traditional acknowledgments at the beginning of inaugural speeches). Other prominent positive words include “great,” “like,” “work,” “right,” “good,” and “protect,” which suggest a focus on accomplishment, action, and values like security and fairness.
+
+On the negative side, the most visible terms include “hard,” “illegal,” “dangerous,” “terrorism,” “crisis,” and “poverty.” These reflect a discourse centered around threat, disorder, and societal challenges. The size of these words indicates they were repeated often, contributing to the speech's emotionally charged tone.
 
 ### Term frequency
 
