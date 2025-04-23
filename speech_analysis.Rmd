@@ -142,11 +142,13 @@ final_text_2013 <- final_text_2013[nchar(trimws(final_text_2013)) > 0]
 
 ### Sentiment analysis
 
-Let´s create a dataframe with all the text we want to analyze
+Sentiment analysis is a popular task in natural language processing. Our goal with sentiment analysis is to classify the text based on the mood or mentality expressed in the inauguration speeches. First, we will identify the most common joy and fear words in Trump´s speeches, then we will study their evolution and check the proportion of negative and positive words. We will finish the sentiment analysis with a *wordcloud* representation
+
+Let's create a dataframe with all the text we want to analyze
 
 ```{r}
 # Trump 2025
-tidy_trump_2025 <- as.data.frame(texto_final_2025) %>%
+tidy_trump_2025 <- as.data.frame(final_text_2025) %>%
   mutate(
     speech = "Trump_2025",
     linenumber = row_number()
@@ -154,8 +156,7 @@ tidy_trump_2025 <- as.data.frame(texto_final_2025) %>%
 tidy_trump_2025
 
 # Trump 2017
-
-tidy_trump_2017 <- as.data.frame(texto_final_2017) %>%
+tidy_trump_2017 <- as.data.frame(final_text_2017) %>%
   mutate(
     speech = "Trump_2017",
     linenumber = row_number()
@@ -163,8 +164,7 @@ tidy_trump_2017 <- as.data.frame(texto_final_2017) %>%
 tidy_trump_2017
 
 # Obama 2013
-
-tidy_obama_2013 <- as.data.frame(texto_final_2013) %>%
+tidy_obama_2013 <- as.data.frame(final_text_2013) %>%
   mutate(
     speech = "Obama_2013",
     linenumber = row_number()
@@ -172,8 +172,7 @@ tidy_obama_2013 <- as.data.frame(texto_final_2013) %>%
 tidy_obama_2013
 
 # Biden 2021
-
-tidy_biden_2021 <- as.data.frame(texto_final_2021) %>%
+tidy_biden_2021 <- as.data.frame(final_text_2021) %>%
   mutate(
     speech = "Biden_2021",
     linenumber = row_number()
@@ -181,27 +180,24 @@ tidy_biden_2021 <- as.data.frame(texto_final_2021) %>%
 tidy_biden_2021
 
 # tokenizing
-
 tidy_trump_2025 <- tidy_trump_2025 %>%
-  unnest_tokens(word, texto_final_2025)
+  unnest_tokens(word, final_text_2025)
 
 tidy_trump_2025
 
 tidy_trump_2017 <- tidy_trump_2017 %>%
-  unnest_tokens(word, texto_final_2017)
+  unnest_tokens(word, final_text_2017)
 tidy_trump_2017
 
 tidy_obama_2013 <- tidy_obama_2013 %>%
-  unnest_tokens(word, texto_final_2013)
+  unnest_tokens(word, final_text_2013)
 tidy_obama_2013
 
 tidy_biden_2021 <- tidy_biden_2021 %>%
-  unnest_tokens(word, texto_final_2021)
+  unnest_tokens(word, final_text_2021)
 tidy_biden_2021
 
-
 # Let´s join all the tables:
-
 sentiment_data <- bind_rows(
   tidy_trump_2025, tidy_trump_2017, 
   tidy_biden_2021, tidy_obama_2013)
@@ -210,9 +206,9 @@ sentiment_data
 
 ```
 
+#### Joy words and fear words
 
-What are the most common joy words during the last Trump speech?
-What are the most common fear wordsduring the last Trump speech?
+we are especially interested in the last speech (2025), mainly due to its recent effects. For that reason, we will extract and analyze the most common fear and joy words in his discourses
 
 ```{r}
 # joy
@@ -237,15 +233,18 @@ trump2025_fear_words <- sentiment_data %>%
 
 trump2025_fear_words
 ```
+
 In Trump’s 2025 inaugural speech, the most frequent joy-related words include “good” (20),    “money” (18), “beautiful” (17), “love” (13), “luck” (9), “pay” (8), “daughter” (7), “child” (6), “create” (6), and “successful” (6). These words could reflect a strong emphasis on prosperity, traditional family values, and personal success, these words could aim to inspire confidence in economic growth and cultural pride. 
 
 Simultaneously, the most common fear-related words: “dangerous” (9), “government” (9), “military” (9), “fight” (8), “illegal” (8), “police” (8), “bad” (7), “inflation” (7), “gang” (6), and “powerful” (5) highlight a narrative of threat and instability, pointing toward concerns about crime, public safety, institutional power, and economic insecurity. The fact that he also mentioned words like “love” and “beautiful” with alarming terms like “dangerous” and “fight” could reveal a strategy centered on contrast: portraying Trump as the defender of a prosperous, idealized America under threat from forces both internal and external.
 
+#### Sentiment changes
 
-let´s examine how sentiment changes throughout each speech
+Since we have the four most recent presidential talks, we are deeply intrigued by examining how the sentiments change throughout each speech.
+
+Now let´s examine how sentiment changes throughout each speech.
 
 ```{r}
-
 evolution_sentiment <- sentiment_data %>%
   #find the sentiment for each word using bing
   inner_join(get_sentiments("bing")) %>%
@@ -266,15 +265,14 @@ ggplot(evolution_sentiment, aes(index, sentiment, fill = speech)) +
 
 ```
 
-The sentiment trajectory across the four inaugural speeches reveals some differences.
-Trump’s 2025 speech shows the highest variability, with sentiment increasing steadily across chunks and peaking in the middle, suggesting a deliberate emotional buildup aimed at energizing and inspiring his audience toward the end.
+The sentiment trajectory across the four inaugural speeches reveals some differences. Trump’s 2025 speech shows the highest variability, with sentiment increasing steadily across chunks and peaking in the middle, suggesting a deliberate emotional buildup aimed at energizing and inspiring his audience toward the end.
 
 In contrast, Trump’s 2017 address maintains a more uniform tone with moderate sentiment, indicating a focus on identifying problems without an emotionally charged resolution. 
 
 Obama’s 2013 speech is characterized by steady, more positive sentiment, while Biden’s 2021 speech shows a quick rise in sentiment early on, likely offering hope after acknowledging national challenges, before dipping back to a more neutral tone.
 
-
 Let's find out how much each word in the speeches contributes to each sentiment. This is: how many times each word appears in the speeches, and which sentiment it is associated to:
+
 ```{r}
 bing_word_counts <- sentiment_data %>%
   #get sentiment from bing
@@ -283,9 +281,6 @@ bing_word_counts <- sentiment_data %>%
   count(word, sentiment, sort = TRUE)
 
 bing_word_counts
-
-
-
 
 bing_word_counts %>%
   group_by(sentiment) %>%
@@ -298,6 +293,7 @@ bing_word_counts %>%
   labs(x = "Contribution to sentiment",
        y = NULL)
 ```
+
 This graph highlights the individual words with the greatest contribution to overall positive and negative sentiment across all the inaugural speeches.
 
 On the positive side, the most influential word is "thank", far surpassing others in frequency, suggesting a strong tone of gratitude and acknowledgment (common in inaugural addresses that express appreciation to supporters). Following closely are words like “great,” “like,” “right,” “work,” and “good,” which convey optimism and approval, all values typically emphasized in presidential rhetoric to inspire unity and forward momentum.
@@ -307,6 +303,7 @@ On the other hand, the most frequent negative word is “hard,” which can carr
 Altogether, the balance of words like “love” and “support” with “crisis” and “threat”
 can reflect a common dual strategy in political discourse: evoking risk and danger to justify action, while simultaneously promising strength, unity, and improvement.
 
+#### Negative and positive words
 
 which speech has the highest proportion of negative words?
 which speech has the highest proportion of positive words?
@@ -322,9 +319,7 @@ bingnegative <- get_sentiments("bing") %>%
 wordcounts <- sentiment_data %>%
   group_by(speech) %>%
   summarize(word = n())
-
 wordcounts
-
 
 #let´s find the number of negative words by speech 
 sentiment_data %>%
@@ -341,9 +336,7 @@ sentiment_data %>%
   slice_max(ratio, n = 4) %>% 
   ungroup()
 
-
 # Positive words ratio
-
 bingpositive <- get_sentiments("bing") %>% 
   filter(sentiment == "positive")
 
@@ -354,15 +347,15 @@ sentiment_data %>%
   left_join(wordcounts, by = "speech") %>%
   mutate(ratio = positivewords/word) %>%
   slice_max(ratio, n = 4)
-
 ```
+
 We calculated the number of negative terms (using the Bing lexicon) relative to the total word count for each speech. The results show that Trump’s 2017 speech had the highest negativity ratio, with about 2.66% of its words classified as negative. This is followed by Trump 2025 (2.34%), Biden 2021 (2.21%), and Obama 2013 (1.80%).
 
 This means that Trump's 2017 address stands out as the most negative, proportionally speaking. This aligns with the tone widely observed in that speech, which focused heavily on themes of national decline, threats, and a promise to radically change direction, often using stark or combative language. In contrast, Obama’s speech had the lowest proportion of negative words, reflecting a more optimistic, hopeful, and unifying rhetorical approach.
 
 On the other hand, The next table compares the use of positive words ratios. Trump's 2025 speech stands out with the highest proportion of positive words, at 5.29%, suggesting a more optimistic tone. His 2017 speech also features a relatively high percentage of positive words (4.88%), indicating a similarly positive tone. Obama's 2013 speech shows a slightly lower ratio of 4.72%, reflecting a balanced but still positive rhetoric. In contrast, Biden's 2021 speech has the lowest ratio of positive words, at 3.42%, which could imply a more measured or serious tone.
 
-wordcloud representation
+#### Wordcloud representation
 
 ```{r}
 sentiment_data %>%
@@ -382,9 +375,7 @@ sentiment_data %>%
   #we add colors as an argument
   with(wordcloud(word, n, max.words = 90, colors = colors))
 
-
 # Compare 2 wordclouds (positive wordcloud with negative wordcloud)
-
 sentiment_data %>%
   #we get sentiments
   inner_join(get_sentiments("bing")) %>%
@@ -397,7 +388,6 @@ sentiment_data %>%
                    max.words = 100)
 
 # same wordcloud but only restricted to one speech from Trump
-
 sentiment_data %>%
   filter(speech == "Trump_2025") %>%
   #we get sentiments
@@ -411,13 +401,14 @@ sentiment_data %>%
                    max.words = 100)
 
 ```
+
 The wordcloud for Trump’s 2025 speech visually highlights the contrast between positive (green) and negative (blue) language. The largest and most dominant word is “thank,” reflecting a strong positive sentiment (likely due to traditional acknowledgments at the beginning of inaugural speeches). Other prominent positive words include “great,” “like,” “work,” “right,” “good,” and “protect,” which suggest a focus on accomplishment, action, and values like security and fairness.
 
 On the negative side, the most visible terms include “hard,” “illegal,” “dangerous,” “terrorism,” “crisis,” and “poverty.” These reflect a discourse centered around threat, disorder, and societal challenges. The size of these words indicates they were repeated often, contributing to the speech's emotionally charged tone.
 
 ### Term frequency
 
-The next tool used in the analysis is *term frequency* (TF), which measures how often a word appears in a document. However, to better capture the relevance of words across multiple documents, we will also use *inverse document frequency* (IDF), which reduces the weight of terms that are common across many texts. By combining both, we obtain *TF-IDF*, a metric that highlights words that are not only frequent in a given document but also distinctive compared to the rest of the corpus. This helps us identify terms that are truly characteristic of each speech.
+The next tool to be used in the analysis is *term frequency* (TF), which measures how often a word appears in a document. However, to better capture the relevance of words across multiple documents, we will also use *inverse document frequency* (IDF), which reduces the weight of terms that are common across many texts. By combining both, we obtain *TF-IDF*, a metric that highlights words that are not only frequent in a given document but also distinctive compared to the rest of the corpus. This helps us identify terms that are truly characteristic of each speech.
 
 #### Most frequently used words
 
@@ -439,7 +430,6 @@ speech <- tibble(
 speech_total <- speech %>%
   unnest_tokens(word, text) %>%
   count(word, sort = TRUE)
-
 speech_total
 ```
 
@@ -630,49 +620,21 @@ We will start by analyzing Trump's speeches, for being able to compare them to t
 
 We first need to clean the text and make it in a suitable format for practising topic modeling. 
 
-```{r}
-
-# We remove the parts where the president was not talking
-trump2017 <- read_lines("data/Trump_2017")
-
-texto_filtrado_2017 <- trump2017 %>%
-  str_subset("^(AUDIENCE|SPEAKER|VICE PRESIDENT|REPRESENTATIVE GREEN|SPEAKER jOHNSON)", negate = TRUE)
-texto_filtrado_2017
-
-# we remove the parenthesis
-texto_filtrado_2017 <- texto_filtrado_2017 %>%
-  str_replace_all("\\(.*?\\)", "")
-texto_filtrado_2017
-
-# we remove "THE PRESIDENT:"
-texto_final_2017 <- str_replace(texto_filtrado_2017, "^THE PRESIDENT:\\s*", "")
-texto_final_2017
-
-# we remove empty rows
-texto_final_2017 <- texto_final_2017[nchar(trimws(texto_final_2017)) > 0]
-texto_final_2017
-
-```
-
 ##### Convert the text into a data frame 
 
 In order to be able to analyze the text, we need to convert it into a structured data frame, where each line of speech has an identifier (line). This facilitates the following cleaning and analysis operations. As a result, we obtain a tibble with two columns: line (line number) and text (textual content).
 
 ```{r}
-
-df_trump <- tibble(line = 1:length(texto_final_2017), text = texto_final_2017)
-
+df_trump <- tibble(line = 1:length(final_text_2017), text = final_text_2017)
 ```
 
 After having our tibble, we need to tokenize and clean the text. Tokenization and text cleaning are essential preprocessing steps in any text mining workflow. Tokenization involves breaking down the text into individual words, or tokens, which allows us to analyze the text at the word level. After tokenizing, we perform additional cleaning to remove elements that do not contribute meaningful information to the analysis. This includes removing common stopwords (such as "the", "and", "we"), which appear frequently but carry little semantic weight, and filtering out numerical values, which can introduce noise into the topic model. By focusing only on the most relevant words, we enhance the clarity and coherence of the topics that the LDA algorithm will later identify.
 
 ```{r}
-
 df_words <- df_trump %>%
   unnest_tokens(word, text) %>%
   anti_join(get_stopwords()) %>%  # filter stopwords
   filter(!str_detect(word, "^[0-9]+$"))  # take out numbers 
-
 ```
 
 As a result, we obtain a dataframe with columns line and word, which contains only significative and useful words.
@@ -680,11 +642,9 @@ As a result, we obtain a dataframe with columns line and word, which contains on
 Now that we have our data tokenized and cleaned, we need to convert it into a DTM format matrix in which rows are lines of speech, columns are words and values are the number of occurrences of each word. This matrix is the input needed by the LDA model. The result will be a DTM matrix with word counts per line.
 
 ```{r}
-
 df_dtm <- df_words %>%
   count(line, word) %>%
   cast_dtm(document = line, term = word, value = n)
-
 ```
 
 ##### Apply LDA
@@ -692,9 +652,7 @@ df_dtm <- df_words %>%
 Once we have our cleaned and tokenized text represented as a DTM, we can use LDA to uncover the hidden thematic structure within the text. LDA is a probabilistic generative model that assumes each document (in our case, each line of the speech) is a mixture of several topics, and each topic is characterized by a distribution over words. When we apply LDA, we specify the number of topics (k) that we want the algorithm to identify. Internally, the model iteratively estimates two probability distributions: the distribution of topics across documents (gamma), and the distribution of words across topics (beta). These distributions are computed using an optimization process that assigns words to topics in a way that maximizes the likelihood of the observed data. In this step, we also fix a random seed to ensure reproducibility. The main output of this step is the trained LDA model object, which contains all the information needed to interpret and visualize the topics. Specifically, we will later extract the most representative words for each topic (using beta) and the topic proportions for each document (using gamma), which will allow us to understand how different parts of the speech relate to the identified topics.
 
 ```{r}
-
 lda_model <- LDA(df_dtm, k = 4, control = list(seed = 1234)) # Supposing we want to find 4 themes
- 
 ```
 
 Now that we have our LDA performed, we will use "matrix = "beta"" to extract the probability of a word given a theme. We will choose the 10 most representative words for each theme and we will visualize the results in a graph.  
@@ -720,7 +678,6 @@ top_terms %>%
   scale_x_reordered() +
   labs(title = "Top 10 terms by theme",
        x = NULL, y = expression(beta))
-
 ```
 
 In the visualization above each facet corresponds to a topic, and the length of the bars reflects the probability (β) that each word belongs to that topic. For example, in Topic 1, terms like great, america, country, and people are prominent, suggesting that this topic may relate to patriotic rhetoric and national pride. Topic 2 includes words such as us, must, american, states, and support, indicating a theme around collective action, duty, and perhaps military or international alliances. In Topic 3, terms like health, infrastructure, insurance, and government point toward domestic policy issues such as healthcare and public services. Topic 4 contains words such as immigration, system, believe, and nations, which likely refer to foreign policy and immigration reform. However, some overlapping terms like american and america appear across multiple topics, which may reduce topic distinctiveness. This overlap can be common in political speeches where key thematic words are repeated frequently. 
@@ -830,7 +787,6 @@ So, we decide to use the LDA model with k = 5 because it offers a clearer and mo
 
 ```{r}
 lda_final <- lda_models[["5"]]
-
 ```
 
 We will extract the top words for each topic again. 
@@ -933,40 +889,17 @@ We will now proceed to do the same thing with the other 3 speeches we want to an
 
 We first need to clean the text and make it in a suitable format for practising topic modeling. 
 
-```{r}
-# We remove the parts where the president was not talking
-trump2025 <- read_lines("data/Trump_2025")
-
-texto_filtrado_2025 <- trump2025 %>%
-  str_subset("^(AUDIENCE|SPEAKER|VICE PRESIDENT|REPRESENTATIVE GREEN|SPEAKER jOHNSON)", negate = TRUE)
-texto_filtrado_2025
-
-# we remove the parenthesis
-texto_filtrado <- texto_filtrado_2025 %>%
-  str_replace_all("\\(.*?\\)", "")
-texto_filtrado_2025
-
-# we remove "THE PRESIDENT:"
-
-texto_final_2025 <- str_replace(texto_filtrado_2025, "^THE PRESIDENT:\\s*", "")
-texto_final_2025
-# we remove empty rows
-texto_final_2025 <- texto_final_2025[nchar(trimws(texto_final_2025)) > 0]
-texto_final_2025
-```
-
 We will now convert it to a dataframe and apply tokenization. 
 
 ```{r}
 # Convert into a dataframe
-df_2025 <- tibble(line = 1:length(texto_final_2025), text = texto_final_2025)
+df_2025 <- tibble(line = 1:length(final_text_2025), text = final_text_2025)
 
 # Tokenization and cleaning
 df_words_2025 <- df_2025 %>%
   unnest_tokens(word, text) %>%
   anti_join(get_stopwords()) %>%               
   filter(!str_detect(word, "^[0-9]+$"))        
-
 ```
 
 Now that we have our data tokenized and cleaned, we need to convert it into a DTM.
@@ -975,14 +908,12 @@ Now that we have our data tokenized and cleaned, we need to convert it into a DT
 df_dtm_2025 <- df_words_2025 %>%
   count(line, word) %>%
   cast_dtm(document = line, term = word, value = n)
-
 ```
 
 Once we have our cleaned and tokenized text represented as a DTM, we can use LDA to uncover the hidden thematic structure within the text. We will use K = 5 in order to be able to compare all the speeches at the end. 
 
 ```{r}
 lda_2025 <- LDA(df_dtm_2025, k = 5, control = list(seed = 1234))
-
 ```
 
 Now that we have our LDA performed, we will use "matrix = "beta"" to extract the probability of a word given a theme. We will choose the 10 most representative words for each theme and we will visualize the results in a graph.
@@ -1008,18 +939,18 @@ top_terms_2025 %>%
   scale_x_reordered() +
   labs(title = "Top 10 terms per topic (Trump 2025 Speech)",
        x = NULL, y = expression(beta))
-
 ```
 
 In this case, several high-frequency words like “applause”, “it's”, and “going” appeared in multiple topics without adding real semantic value. Removing these can help the model focus on more meaningful content and improve the clarity and coherence of the topics, so, we need to create a custom list of stopwords and do the whole process again. 
 
 ```{r}
 # List of customized stopwords
-custom_stopwords <- c("applause", "it’s", "just", "also", "thank", "going", "we’re", 
-                      "new", "get", "great", "now", "back", "first", "much", "want", "never", "he’s", "didn’t", "don’t", "they’re", "i’m") 
+custom_stopwords <- c("applause", "it’s", "just", "also", "thank", "going", "we’re",
+                      "new", "get", "great", "now", "back", "first", "much", "want",
+                      "never", "he’s", "didn’t", "don’t", "they’re", "i’m") 
 
-# CConvert into dataframe
-df_2025_clean <- tibble(line = 1:length(texto_final_2025), text = texto_final_2025)
+# Convert into dataframe
+df_2025_clean <- tibble(line = 1:length(final_text_2025), text = final_text_2025)
 
 # Tokenization + cleaning
 df_words_2025_clean <- df_2025_clean %>%
@@ -1027,7 +958,6 @@ df_words_2025_clean <- df_2025_clean %>%
   anti_join(get_stopwords()) %>%                         
   filter(!word %in% custom_stopwords) %>%                
   filter(!str_detect(word, "^[0-9]+$"))                  
-
 ```
 
 We will now convert it into DTM and apply LDA again. 
@@ -1040,7 +970,6 @@ df_dtm_2025_clean <- df_words_2025_clean %>%
 
 # Apply LDA
 lda_2025_clean <- LDA(df_dtm_2025_clean, k = 5, control = list(seed = 1234))
-
 ```
 
 And we will recreate the visualization in order to see if the information obtained is more useful and informative. 
@@ -1066,7 +995,6 @@ top_terms_2025_clean %>%
   scale_x_reordered() +
   labs(title = "Top 10 terms per topic (Trump 2025 – Improved Cleaning)",
        x = NULL, y = expression(beta))
-
 ```
 
 The final version of Trump’s 2025 speech offers a well-structured and thematically clear breakdown. Topic 1 includes words like “years”, “tonight”, “members”, “history”, and “days”, which seem to relate to ceremonial references, past accomplishments, or commemorative remarks (possibly the opening of the speech or reflective segments). Topic 2 centers around “good”, “beautiful”, “job”, “luck”, and “hard”, indicating an optimistic tone focused on personal achievements, character traits, or positive evaluations of people and efforts. This likely reflects moments of praise or uplifting rhetoric. Topic 3 is characterized by “million”, “money”, “world”, “country”, “tax”, and “united states”, suggesting a strong emphasis on economic issues, national finances, and global positioning (themes common in economic and geopolitical sections of the speech). Topic 4 includes terms like “us”, “fight”, “make”, “money”, and “congress”, which indicate a call to action, national strength, and perhaps direct political challenges or legislative goals. Finally, Topic 5 stands out for including more unique and specific terms like “panama”, “roberto”, “canal”, and “administration”, hinting at a reference to foreign policy or a historical anecdote about international relations and infrastructure (likely a specific story or example included for rhetorical effect).
@@ -1086,10 +1014,9 @@ dominant_topic_2025 <- doc_topics_2025 %>%
 df_trump_topics_2025 <- df_2025 %>%
   mutate(document = as.character(line)) %>%
   left_join(dominant_topic_2025, by = "document")
-
 ```
 
-And we will visualize the results.
+And now we can visualize the results.
 
 ```{r}
 # Representative examples by topic
@@ -1112,7 +1039,6 @@ df_trump_topics_2025 %>%
   ggplot(aes(x = line, y = topic, color = factor(topic))) +
   geom_point() +
   labs(title = "Topic flow throughout the speech", x = "Line number", y = "Topic")
-
 ```
 
 The topic assignment reveals a well-distributed thematic structure throughout the speech. From the bar chart, we can observe that Topics 2 and 3 are the most dominant, each appearing in over 70 lines. These likely represent the speech’s core themes—potentially centered on economy, job creation, or patriotic sentiments—depending on how they were previously interpreted. Topic 1 also has strong representation (around 55 lines), possibly related to commemorative or ceremonial aspects of the address. Topics 4 and 5 show slightly fewer occurrences but are still meaningfully present. Topic 4 could correspond to policy initiatives or calls to action, while Topic 5 may deal with foreign affairs or historical references, based on previous top term analysis. Interestingly, a few lines remain unclassified (NA). These are likely short or vague segments (“Thank you very much”), which don’t contain enough information for the LDA model to confidently assign them to a topic. 
@@ -1125,43 +1051,19 @@ With this being said and having analyzed Trump's speeches, we will now move on t
 
 #### Obama 2013 speech 
 
-We first need to clean the text and make it in a suitable format for practising topic modeling. 
-```{r}
-# We remove the parts where the president was not talking
-obama2013 <- read_lines("data/Obama_2013")
-
-texto_filtrado_2013 <- obama2013 %>%
-  str_subset("^(AUDIENCE|SPEAKER|VICE PRESIDENT|REPRESENTATIVE GREEN|SPEAKER jOHNSON)", negate = TRUE)
-texto_filtrado_2013
-
-# we remove the parenthesis
-texto_filtrado_2013 <- texto_filtrado_2013 %>%
-  str_replace_all("\\(.*?\\)", "")
-texto_filtrado_2013
-
-# we remove "THE PRESIDENT:"
-
-texto_final_2013 <- str_replace(texto_filtrado_2013, "^THE PRESIDENT:\\s*", "")
-texto_final_2013
-# we remove empty rows
-texto_final_2013 <- texto_final_2013[nchar(trimws(texto_final_2013)) > 0]
-
-texto_final_2013
-
-```
+We first need to clean the text and make it in a suitable format for practising topic modeling.
 
 We will now convert it to a dataframe and apply tokenization. 
 
 ```{r}
 # Convert it to a dataframe
-df_obama_2013 <- tibble(line = 1:length(texto_final_2013), text = texto_final_2013)
+df_obama_2013 <- tibble(line = 1:length(final_text_2013), text = final_text_2013)
 
 # Tokenization + cleaning
 df_words_obama <- df_obama_2013 %>%
   unnest_tokens(word, text) %>%
   anti_join(get_stopwords()) %>%
   filter(!str_detect(word, "^[0-9]+$"))  
-
 ```
 
 Now that we have our data tokenized and cleaned, we need to convert it into a DTM.
@@ -1170,20 +1072,17 @@ Now that we have our data tokenized and cleaned, we need to convert it into a DT
 df_dtm_obama <- df_words_obama %>%
   count(line, word) %>%
   cast_dtm(document = line, term = word, value = n)
-
 ```
 
 Once we have our cleaned and tokenized text represented as a DTM, we can use LDA to uncover the hidden thematic structure within the text. We will use K = 5 in order to be able to compare all the speeches at the end. 
 
 ```{r}
 lda_obama <- LDA(df_dtm_obama, k = 5, control = list(seed = 1234))
-
 ```
 
 Now that we have our LDA performed, we will use "matrix = "beta"" to extract the probability of a word given a theme. We will choose the 10 most representative words for each theme and we will visualize the results in a graph.
 
 ```{r}
-
 # Extract the most representative terms by topic
 topics_obama <- tidy(lda_obama, matrix = "beta")
 
@@ -1204,7 +1103,6 @@ top_terms_obama %>%
   scale_x_reordered() +
   labs(title = "Top 10 terms per topic (Obama 2013)",
        x = NULL, y = expression(beta))
-
 ```
 
 The results for President Obama’s speech appear thematically coherent and relatively well-balanced across the five topics. Topic 1 is dominated by terms like “energy”, “years”, “gas”, “power”, and “home”, suggesting a focus on energy policy, sustainability, and infrastructure. Topic 2, with terms such as “can”, “tonight”, “congress”, “jobs”, and “act”, reflects the persuasive and directive tone of the speech, particularly calls to legislative action or government cooperation. Topic 3 is clearly focused on employment and the economy, with words like “jobs”, “high”, “tax”, “education”, and “job”, making this theme highly relevant to middle-class concerns and recovery plans. Topic 4 contains terms like “time”, “cuts”, “work”, “need”, and “americans”, which likely reflects urgency in addressing fiscal responsibility or policy reform—possibly linked to the budget and deficit debates at the time. Topic 5 stands out with “vote”, “families”, “deserve”, “right”, and “must”, suggesting a civic-oriented or value-driven message, possibly touching on themes like voting rights, equality, and social justice.
@@ -1224,10 +1122,9 @@ dominant_topic_obama <- obama_gamma %>%
 df_obama_topics <- df_obama_2013 %>%
   mutate(document = as.character(line)) %>%
   left_join(dominant_topic_obama, by = "document")
-
 ```
 
-And we will visualize the results.
+And we visualize the results.
 
 ```{r}
 # Representative examples by topic
@@ -1250,7 +1147,6 @@ df_obama_topics %>%
   ggplot(aes(x = line, y = topic, color = factor(topic))) +
   geom_point() +
   labs(title = "Topic flow throughout the speech", x = "Line number", y = "Topic")
-
 ```
 
 The distribution of topics across the speech is fairly balanced, as shown in the bar chart. All five topics have a similar number of lines, suggesting that Obama structured his address to cover multiple key areas fairly evenly. From the sample lines per topic: Topic 1 includes lines about legal immigration, hardworking Americans, and national remembrance. This points to citizenship, values, and national unity. Topic 2 seems more oriented toward policy and legislative action, featuring words like “congress”, “act”, and “jobs”. Topic 3 has strong economic content: lines on job creation, infrastructure, manufacturing, and the Affordable Care Act. This clearly represents the economy and domestic programs. Topic 4 lines include budget-focused language such as “cuts”, “work”, “need”, and “time”, highlighting urgency and economic reform. Topic 5 involves more emotive and civic language (“vote”, “families”, “deserve”, “unfinished task”), signaling a call to civic responsibility and social justice. The flow plot shows that Obama alternates between topics rather than presenting them in large uninterrupted blocks. This kind of thematic interweaving suggests a rhetorical strategy that ties together different priorities—values, legislation, economy—within broader arguments.
@@ -1263,65 +1159,36 @@ We will move on to the last discourse, Biden's 2021 speech.
 
 We first need to clean the text and make it in a suitable format for practising topic modeling. 
 
-```{r}
-# We remove the parts where the president was not talking
-biden2021 <- read_lines("data/Biden_2021")
-
-texto_filtrado_2021 <- biden2021 %>%
-  str_subset("^(AUDIENCE|SPEAKER|VICE PRESIDENT|REPRESENTATIVE GREEN|SPEAKER jOHNSON)", negate = TRUE)
-texto_filtrado_2021
-
-# we remove the parenthesis
-texto_filtrado_2021 <- texto_filtrado_2021 %>%
-  str_replace_all("\\(.*?\\)", "")
-texto_filtrado_2021
-
-# we remove "THE PRESIDENT:"
-
-texto_final_2021 <- str_replace(texto_filtrado_2021, "^THE PRESIDENT:\\s*", "")
-texto_final_2021
-# we remove empty rows
-texto_final_2021 <- texto_final_2021[nchar(trimws(texto_final_2021)) > 0]
-texto_final_2021
-```
-
 We will now convert it to a dataframe and apply tokenization. 
 
 ```{r}
 # Convert it to a dataframe
-df_biden_2021 <- tibble(line = 1:length(texto_final_2021), text = texto_final_2021)
+df_biden_2021 <- tibble(line = 1:length(final_text_2021), text = final_text_2021)
 
 # Tokenization + cleaning
 df_words_biden <- df_biden_2021 %>%
   unnest_tokens(word, text) %>%
   anti_join(get_stopwords()) %>%
   filter(!str_detect(word, "^[0-9]+$")) 
- 
-
 ```
 
 Now that we have our data tokenized and cleaned, we need to convert it into a DTM.
 
 ```{r}
-
 df_dtm_biden <- df_words_biden %>%
   count(line, word) %>%
   cast_dtm(document = line, term = word, value = n)
-
 ```
 
 Once we have our cleaned and tokenized text represented as a DTM, we can use LDA to uncover the hidden thematic structure within the text. We will use K = 5 in order to be able to compare all the speeches at the end. 
 
 ```{r}
-
 lda_biden <- LDA(df_dtm_biden, k = 5, control = list(seed = 1234))
-
 ```
 
 Now that we have our LDA performed, we will use "matrix = "beta"" to extract the probability of a word given a theme. We will choose the 10 most representative words for each theme and we will visualize the results in a graph.
 
 ```{r}
-
 # Extract the most representative terms by topic
 topics_biden <- tidy(lda_biden, matrix = "beta")
 
@@ -1342,7 +1209,6 @@ top_terms_biden %>%
   scale_x_reordered() +
   labs(title = "Top 10 terms per topic (Biden 2021)",
        x = NULL, y = expression(beta))
-
 ```
 
 In this case, several high-frequency words like “we're”, “it's”, and “one” appeared in multiple topics without adding real semantic value. Removing these can help the model focus on more meaningful content and improve the clarity and coherence of the topics, so, we need to create a custom list of stopwords and do the whole process again. 
@@ -1351,7 +1217,7 @@ In this case, several high-frequency words like “we're”, “it's”, and “
 biden_stopwords <- c("it’s", "we’re", "i’ve", "that’s", "let’s", "one", "just", "can", "said", "know", "ever", "get", "now", "also", "percent", "act", "america", "american")
 
 # Convert into a tibble
-df_biden_2021 <- tibble(line = 1:length(texto_final_2021), text = texto_final_2021)
+df_biden_2021 <- tibble(line = 1:length(final_text_2021), text = final_text_2021)
 
 # Tokenize +cleaning
 df_words_biden <- df_biden_2021 %>%
@@ -1385,8 +1251,6 @@ top_terms_biden %>%
   scale_x_reordered() +
   labs(title = "Top 10 terms per topic (Biden 2021 – Improved Cleaning)",
        x = NULL, y = expression(beta))
-
-
 ```
 
 The refined output from Biden's 2021 speech shows a much clearer thematic structure. Topic 1 features terms like century, years, world, and tax, suggesting a focus on long-term planning and economic positioning of the U.S. in the 21st century. Topic 2, with words such as jobs, power, plan, change, and investments, clearly reflects economic recovery and industrial policy, a recurring theme in Biden's economic messaging. Topic 3 blends terms like families, care, jobs, and need, pointing toward social policy, healthcare, and family support. Topic 4, containing words like pass, congress, right, and pandemic, indicates legislative appeals and crisis response, likely tied to COVID-19 and civil rights discussions. Lastly, Topic 5 uses keywords such as people, democracy, gun, opportunity, and justice, all of which suggest a strong emphasis on American identity, civic values, and calls for unity. Overall, the model has successfully isolated key policy pillars of Biden’s speech—economic strategy, healthcare, legislative action, and democratic ideals—with clear differentiation between topics.
@@ -1394,7 +1258,6 @@ The refined output from Biden's 2021 speech shows a much clearer thematic struct
 We will proceed by using the gamma matrix to identify which topic is most dominant in each line of the speech.
 
 ```{r}
-
 # Gamma matrix
 biden_topics <- tidy(lda_biden, matrix = "gamma")
 
@@ -1412,7 +1275,7 @@ df_biden_assigned <- df_biden_2021 %>%
 
 ```
 
-And we will visualize the results.
+And we visualize the results.
 
 ```{r}
 # Representative examples by topic
@@ -1439,7 +1302,6 @@ df_biden_assigned %>%
        x = "Line number",
        y = "Topic") +
   theme_minimal()
-
 ```
 
 The topic model for President Biden’s 2021 speech reveals five distinct but interconnected themes. One of the key topics centers around policy and economic recovery, shown by terms like “jobs,” “plan,” and “families,” pointing to the administration’s emphasis on employment and pandemic relief. Another dominant topic revolves around legislative urgency and action, with words like “pass,” “congress,” and “right,” suggesting calls for cooperation in moving forward with bills. Additionally, “democracy,” “justice,” and “opportunity” indicate a broader theme around civil values and rebuilding trust in American institutions. Looking at the topic flow, we can see that the distribution of themes is relatively balanced, with each topic receiving significant attention throughout the speech. This suggests Biden aimed for an even rhetorical structure, frequently looping back to reinforce ideas rather than dividing the speech into rigid thematic blocks. The speech opens and closes with references to unity, democracy, and national resilience—helping to tie the more technical sections together with an overarching narrative about hope and collective responsibility.
@@ -1452,15 +1314,14 @@ We will now create a thematic comparison between the four speeches (Trump 2017, 
 
 ```{r}
 # Create dataframes
-df_trump2017 <- tibble(line = 1:length(texto_final_2017), text = texto_final_2017, president = "Trump 2017")
-df_trump2025 <- tibble(line = 1:length(texto_final_2025), text = texto_final_2025, president = "Trump 2025")
-df_obama2013 <- tibble(line = 1:length(texto_final_2013), text = texto_final_2013, president = "Obama 2013")
-df_biden2021 <- tibble(line = 1:length(texto_final_2021), text = texto_final_2021, president = "Biden 2021")
+df_trump2017 <- tibble(line = 1:length(final_text_2017), text = final_text_2017, president = "Trump 2017")
+df_trump2025 <- tibble(line = 1:length(final_text_2025), text = final_text_2025, president = "Trump 2025")
+df_obama2013 <- tibble(line = 1:length(final_text_2013), text = final_text_2013, president = "Obama 2013")
+df_biden2021 <- tibble(line = 1:length(final_text_2021), text = final_text_2021, president = "Biden 2021")
 
 # Unite in a single dataframe
 df_all <- bind_rows(df_trump2017, df_trump2025, df_obama2013, df_biden2021) %>%
   mutate(document = paste(president, line, sep = "_"))  # ID único por línea
-
 ```
 
 We will apply tokenization and cleaning. 
@@ -1474,7 +1335,6 @@ df_words_all <- df_all %>%
   filter(!word %in% general_stopwords) %>%
   anti_join(get_stopwords()) %>%
   filter(!str_detect(word, "^[0-9]+$"))
-
 ```
 
 We will proceed by creating a DTM and applying LDA. 
@@ -1487,10 +1347,9 @@ df_dtm_all <- df_words_all %>%
 
 # LDA
 lda_all <- LDA(df_dtm_all, k = 5, control = list(seed = 1234))
-
 ```
 
-And we will visualize it. 
+And we can visualize it too. 
 
 ```{r}
 # Extract gamma
@@ -1511,7 +1370,6 @@ ggplot(gamma_summary, aes(x = president, y = mean_gamma, fill = factor(topic))) 
        fill = "Topic") +
   scale_y_continuous(labels = scales::percent_format()) +
   theme_minimal()
-
 ```
 
 The stacked bar chart shows how each president emphasized the five discovered topics in their speeches. Biden’s 2021 address displays the most balanced distribution among all five topics, with Topic 1 (possibly international affairs and future vision) being slightly more dominant. Obama’s 2013 speech stands out for its stronger focus on Topic 3, which may relate to job creation, economic recovery, or education. Meanwhile, Trump’s 2017 and 2025 speeches share very similar proportions, though the 2025 speech places noticeably more weight on Topic 5, potentially reflecting themes like national identity, patriotism, or calls for unity. Interestingly, Topic 4, which could involve policy initiatives or legislative action, seems more present in Trump’s 2017 speech than in Obama’s or Biden’s. This might highlight how Trump used his first address to stress concrete policy rollouts.
@@ -1535,7 +1393,6 @@ topic_matrix <- topic_summary %>%
 # Compute cosine similarity
 similarity_matrix <- as.matrix(dist(topic_matrix, method = "cosine"))
 print(round(1 - similarity_matrix, 2))  # 1 - distance = similarity
-
 ```
 
 The average gamma values indicate how dominant each topic is within a president's speech. Biden's 2021 speech shows a fairly balanced distribution, with Topic 1 (possibly about future-oriented themes and national identity) being slightly more dominant, followed by Topics 3 and 4. Obama’s 2013 speech has a clear emphasis on Topic 3, which could relate to jobs and economic recovery, suggesting a stronger thematic focus on domestic policy. Trump’s 2017 speech shows Topic 4 as the most dominant, while his 2025 speech places the greatest weight on Topic 5 — hinting at a shift in focus from economic or institutional matters (2017) to perhaps more emotional or populist themes (2025).
@@ -1547,7 +1404,6 @@ Despite being from different parties and eras, all four speeches share a foundat
 We can also make a comparison with the betas to compare which words are most associated with each topic for each president:
 
 ```{r}
-
 # Extract beta for each model
 beta_biden <- tidy(lda_biden, matrix = "beta") %>% mutate(president = "Biden 2021")
 beta_obama <- tidy(lda_obama, matrix = "beta") %>% mutate(president = "Obama 2013")
@@ -1556,7 +1412,6 @@ beta_trump2025 <- tidy(lda_2025_clean, matrix = "beta") %>% mutate(president = "
 
 # Combine all into a single table
 beta_all <- bind_rows(beta_biden, beta_obama, beta_trump2017, beta_trump2025)
-
 
 top_terms_by_president <- beta_all %>%  # assuming you have all beta values in `beta_all`
   group_by(president, topic) %>%
@@ -1570,7 +1425,6 @@ ggplot(top_terms_by_president, aes(x = reorder(term, beta), y = beta, fill = pre
   coord_flip() +
   labs(title = "Top Terms per Topic and President",
        x = "Term", y = "Beta (Word Probability)")
-
 ```
 
 Topic 1 appears to focus on temporal or national framing (words like “years,” “world,” “century,” “energy,” “country”). Biden and Obama use temporal markers like “century” and “years” more heavily, whereas Trump 2017 emphasizes “people” and “country,” and Trump 2025 introduces less semantically rich terms like “tonight” and “members.” This suggests that Biden and Obama frame their discourse within broader historical or national narratives, while Trump’s tone is more anchored in people and immediacy. Topic 2 emphasizes legislative or executive action — terms like “jobs,” “act,” “congress,” “plan,” “president.” Biden leads with “jobs” and “plan,” showing a proactive, policy-driven agenda. Obama includes “congress,” “can,” and “tonight,” indicating direct appeals for action. Trump 2017 uses “today,” “world,” and “nation” to ground his points in current national challenges. Trump 2025's focus shifts to adjectives like “good” and “beautiful,” reflecting a more rhetorical or persuasive tone rather than action-based content.
@@ -1592,3 +1446,4 @@ Lastly, from a structural perspective, Biden’s and Obama’s speeches show a h
 Overall, the topic modeling analysis across the four presidential speeches highlights how each leader shaped their message to reflect their political priorities and the context of their presidency. Trump’s speeches leaned toward strong national identity, economic protectionism, and bold rhetoric, while Obama emphasized hope, reform, and collective responsibility. Biden's speech blended crisis recovery with unity and democratic values. So, while there are thematic overlaps, each speech reflects a unique rhetorical strategy and vision for the country.
 
 ## Conclusion
+
