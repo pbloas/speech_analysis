@@ -11,9 +11,9 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Introduction
 
-Trump's second investiture in the United States began just a few months ago and has revolutionised the world as we know it with his various economic and social measures. What has probably been most striking is the tone he has used to refer to other countries and their relationship with the United States. Trump's figure and his discourse were already known worldwide since he won the election in 2017, but the scene has been changing over the years. With his rapprochement with Russia in the Ukraine war and his direct confrontation with the European Union and China, Western relations in recent years have been weakened in recent months.
+Trump's second investiture in the United States began just a few months ago and has revolutionized the world as we know it with his various economic and social measures. What has probably been most striking is the tone he has used to refer to other countries and their relationship with the United States. Trump's figure and his discourse were already known worldwide since he won the election in 2017, but the scene has been changing over the years. With his rapprochement with Russia in the Ukraine war and his direct confrontation with the European Union and China, Western relations in recent years have been weakened in recent months.
 
-For this reason, we have decided to focus this paper on analysing the speeches of recent presidents in the US Congress. In this way, we want to see what differences there are between the speeches of the three presidents (Donald Trump, Joe Biden and Barack Obama) and to see specifically how Donald Trump in 2025 differs from the rest.
+For this reason, we have decided to focus this paper on analyzing the speeches of recent presidents in the US Congress. In this way, we want to see what differences there are between the speeches of the three presidents (Donald Trump, Joe Biden and Barack Obama) and to see specifically how Donald Trump in 2025 differs from the rest.
 
 It would indeed have been more appropriate to use the inaugural speeches that different presidents make once they have won the elections and are sworn in as such. However, these speeches are generally shorter. For this reason, we have chosen to select the first speeches made by each of the presidents in their presentation to Congress.
 
@@ -22,7 +22,7 @@ It would indeed have been more appropriate to use the inaugural speeches that di
 -   [Remarks by President Biden in Address to a Joint Session of Congress 2021](https://bidenwhitehouse.archives.gov/briefing-room/speeches-remarks/2021/04/29/remarks-by-president-biden-in-address-to-a-joint-session-of-congress/)
 -   [Remarks by President Trump in Joint Address to Congress 2025](https://www.whitehouse.gov/remarks/2025/03/remarks-by-president-trump-in-joint-address-to-congress/)
 
-In order to be able to analyse these texts as comprehensively as possible, we will use three text analysis techniques. The three techniques chosen are: *Sentiment Analysis*, *Term Frequency* and *Topic Modeling*. These tools will be used separately, but will be presented together at the end of the work in order to draw conclusive results on the different discourses.
+In order to be able to analyze these texts as comprehensively as possible, we will use three text analysis techniques. The three techniques chosen are: *Sentiment Analysis*, *Term Frequency* and *Topic Modeling*. These tools will be used separately, but will be presented together at the end of the work in order to draw conclusive results on the different discourses.
 
 ## Libraries
 
@@ -45,11 +45,12 @@ library(RColorBrewer)
 library(reshape2)
 ```
 
-We will use these libraries for: 
-- Manipulate and clean up text (tidyverse, tidytext)
-- Remove empty words and prepare textual data (tm, SnowballC)
-- Apply topic models as LDA (topicmodels)
-- Visualize and present results (scales, knitr, kableExtra)
+We will use these libraries for:
+- Manipulate and clean up text (tidyverse, tidytext, readr, reshape2). To import, structure, and transform textual data into tidy formats that are easier to analyze.
+- Remove empty words and prepare textual data (tm, SnowballC, textdata). To clean and normalize the text by removing stopwords, applying stemming, and incorporating external lexicons.
+- Apply topic models such as LDA (topicmodels). To identify and analyze latent topics within a corpus of documents.
+- Measure similarity between documents (proxy). To compute distance or similarity metrics between text elements, which supports clustering or recommendation tasks.
+- Visualize and present results (wordcloud, RColorBrewer, scales, knitr, kableExtra). To create informative and aesthetic visualizations like word clouds and well-formatted tables for reports or presentations.
 
 ## Data cleaning
 
@@ -649,11 +650,11 @@ With the sentiment analysis and term frequency tools, we were able to get an ide
 
 ### Topic modeling
 
+We will now start with the last technique, Topic Modeling. This is a common technique in natural language processing used to discover hidden themes in large collections of text. Our goal with topic modeling is to uncover the main topics discussed in the inauguration speeches and understand how they vary between presidents. First, we will preprocess the text to build a document-term matrix, then we will apply Latent Dirichlet Allocation (LDA) to extract a set of dominant topics. We will analyze the top words associated with each topic and we will conclude with a visualization of the topic distribution across different speeches.
+
 We will start by analyzing Trump's speeches, for being able to compare them to the other president's speeches later on. 
 
 #### Trump 2017 speech
-
-We first need to clean the text and make it in a suitable format for practising topic modeling. 
 
 ##### Convert the text into a data frame 
 
@@ -882,7 +883,7 @@ df_trump_topics %>%
 
 ```
 
-We will also analyze the frequence of each topic in the speech. This will tell us which topics dominate the speech. For example, if Topic 2 (Economy) has the most lines, that might suggest the economy was a central theme in this address.
+We will also analyze the frequency of each topic in the speech. This will tell us which topics dominate the speech. For example, if Topic 2 (Economy) has the most lines, that might suggest the economy was a central theme in this address.
 
 ```{r}
 # Count how many lines are from each topic
@@ -895,7 +896,6 @@ df_trump_topics %>%
 ```
 
 Finally, we will watch the evolution of topics along the speech. This will help us analyze structure and flow. 
-
 ```{r}
 # Change of topics all along the speech
 df_trump_topics %>%
@@ -912,7 +912,7 @@ The frequency analysis reveals that Topic 3 dominates the speech, followed by To
 
 The topic progression plot shows how these themes unfold across the speech. Notably, the speech does not follow a strict thematic block structure. Instead, there is a scattered distribution, with topics appearing throughout in varying proportions. For example, Topic 1 (ceremonial and general statements) appears early and then reappears toward the end, which is consistent with how speeches often open and close with broad, unifying messages. Topic 3 is present across the entire speech, indicating a continuous effort to relate to individual citizens and emotional narratives. Topic 4, though less frequent, appears in mid-speech clusters, corresponding to sections on immigration and national security.
 
-The sample lines per topic reinforce the thematic interpretations. Lines categorized under Topic 3 include phrases about helping Americans, improving access to healthcare, and personal stories — confirming it as a socially oriented, emotionally resonant topic. Topic 4 includes discussions about terrorism, borders, and immigration, aligning well with its security-driven vocabulary. Topics 1, 2, and 5 also maintain internal consistency in their sample texts, validating the model's accuracy.
+The sample lines per topic reinforce the thematic interpretations. Lines categorized under Topic 3 include phrases about helping Americans, improving access to healthcare, and personal stories; confirming it as a socially oriented, emotionally resonant topic. Topic 4 includes discussions about terrorism, borders, and immigration, aligning well with its security-driven vocabulary. Topics 1, 2, and 5 also maintain internal consistency in their sample texts, validating the model's accuracy.
 
 Overall, thematic analysis of Trump’s 2017 State of the Union reveals a speech organized around recurring priorities, delivered in a clear and structured way. The five topics identified through LDA include themes such as ceremonial praise and American greatness, policy and legislative direction, support for American citizens, immigration and security concerns, and national vision in foreign affairs. The topic flow across the speech shows that Trump frequently transitions between these themes, creating a dynamic rhythm that blends emotion, persuasion, and political messaging. The distribution of topics reflects a speech focused on rallying national pride while addressing both domestic and global priorities. So, the thematic structure effectively supports the tone and political messaging of the address.
 
@@ -922,7 +922,7 @@ We will now proceed to do the same thing with the other 3 speeches we want to an
 
 #### Trump 2025 speech
 
-We first need to clean the text and make it in a suitable format for practising topic modeling. 
+We first need to clean the text and make it in a suitable format for practicing topic modeling. 
 
 We will now convert it to a dataframe and apply tokenization. 
 
@@ -1086,7 +1086,7 @@ With this being said and having analyzed Trump's speeches, we will now move on t
 
 #### Obama 2013 speech 
 
-We first need to clean the text and make it in a suitable format for practising topic modeling.
+We first need to clean the text and make it in a suitable format for practicing topic modeling.
 
 We will now convert it to a dataframe and apply tokenization. 
 
@@ -1192,7 +1192,7 @@ We will move on to the last discourse, Biden's 2021 speech.
 
 #### Biden 2021 speech
 
-We first need to clean the text and make it in a suitable format for practising topic modeling. 
+We first need to clean the text and make it in a suitable format for practicing topic modeling. 
 
 We will now convert it to a dataframe and apply tokenization. 
 
@@ -1356,7 +1356,7 @@ df_biden2021 <- tibble(line = 1:length(final_text_2021), text = final_text_2021,
 
 # Unite in a single dataframe
 df_all <- bind_rows(df_trump2017, df_trump2025, df_obama2013, df_biden2021) %>%
-  mutate(document = paste(president, line, sep = "_"))  # ID único por línea
+  mutate(document = paste(president, line, sep = "_"))  # unique ID by line
 ```
 
 We will apply tokenization and cleaning. 
@@ -1432,9 +1432,9 @@ print(round(1 - similarity_matrix, 2))  # 1 - distance = similarity
 
 The average gamma values indicate how dominant each topic is within a president's speech. Biden's 2021 speech shows a fairly balanced distribution, with Topic 1 (possibly about future-oriented themes and national identity) being slightly more dominant, followed by Topics 3 and 4. Obama’s 2013 speech has a clear emphasis on Topic 3, which could relate to jobs and economic recovery, suggesting a stronger thematic focus on domestic policy. Trump’s 2017 speech shows Topic 4 as the most dominant, while his 2025 speech places the greatest weight on Topic 5 — hinting at a shift in focus from economic or institutional matters (2017) to perhaps more emotional or populist themes (2025).
 
-The cosine similarity matrix tells us how similar the overall topic proportions are between the four speeches. The highest similarity (0.98) is between Biden 2021 and Trump 2017, which is surprising and suggests a shared focus on similar topics — possibly due to overlapping concerns like recovery, unity, or economic plans. Trump 2025 shows strong similarity to Trump 2017 (0.95), indicating internal thematic consistency. Obama 2013 is slightly less similar to all others (values between 0.87 and 0.95), confirming that his speech emphasized different thematic priorities.
+The cosine similarity matrix tells us how similar the overall topic proportions are between the four speeches. The highest similarity (0.98) is between Biden 2021 and Trump 2017, which is surprising and suggests a shared focus on similar topics; possibly due to overlapping concerns like recovery, unity, or economic plans. Trump 2025 shows strong similarity to Trump 2017 (0.95), indicating internal thematic consistency. Obama 2013 is slightly less similar to all others (values between 0.87 and 0.95), confirming that his speech emphasized different thematic priorities.
 
-Despite being from different parties and eras, all four speeches share a foundational structure — touching on governance, economic concerns, and national identity. However, subtle shifts can be detected: Obama’s speech leans more heavily into economic rebuilding and policy implementation, while Trump’s speeches evolve from institutional goals to more emotionally driven appeals. Biden’s position seems to blend these elements, aiming for a unifying message that echoes both continuity and reform.
+Despite being from different parties and eras, all four speeches share a foundational structure; touching on governance, economic concerns, and national identity. However, subtle shifts can be detected: Obama’s speech leans more heavily into economic rebuilding and policy implementation, while Trump’s speeches evolve from institutional goals to more emotionally driven appeals. Biden’s position seems to blend these elements, aiming for a unifying message that echoes both continuity and reform.
 
 We can also make a comparison with the betas to compare which words are most associated with each topic for each president:
 
@@ -1448,7 +1448,7 @@ beta_trump2025 <- tidy(lda_2025_clean, matrix = "beta") %>% mutate(president = "
 # Combine all into a single table
 beta_all <- bind_rows(beta_biden, beta_obama, beta_trump2017, beta_trump2025)
 
-top_terms_by_president <- beta_all %>%  # assuming you have all beta values in `beta_all`
+top_terms_by_president <- beta_all %>%  
   group_by(president, topic) %>%
   top_n(5, beta) %>%
   ungroup() %>%
@@ -1459,20 +1459,20 @@ ggplot(top_terms_by_president, aes(x = reorder(term, beta), y = beta, fill = pre
   facet_wrap(~ president + topic, scales = "free", ncol = 5) +
   coord_flip() +
   labs(title = "Top Terms per Topic and President",
-       x = "Term", y = "Beta (Word Probability)")
+       x = "Term", y = "Beta")
 ```
 
-Topic 1 appears to focus on temporal or national framing (words like “years,” “world,” “century,” “energy,” “country”). Biden and Obama use temporal markers like “century” and “years” more heavily, whereas Trump 2017 emphasizes “people” and “country,” and Trump 2025 introduces less semantically rich terms like “tonight” and “members.” This suggests that Biden and Obama frame their discourse within broader historical or national narratives, while Trump’s tone is more anchored in people and immediacy. Topic 2 emphasizes legislative or executive action — terms like “jobs,” “act,” “congress,” “plan,” “president.” Biden leads with “jobs” and “plan,” showing a proactive, policy-driven agenda. Obama includes “congress,” “can,” and “tonight,” indicating direct appeals for action. Trump 2017 uses “today,” “world,” and “nation” to ground his points in current national challenges. Trump 2025's focus shifts to adjectives like “good” and “beautiful,” reflecting a more rhetorical or persuasive tone rather than action-based content.
+Topic 1 appears to focus on temporal or national framing (words like “years,” “world,” “century,” “energy,” “country”). Biden and Obama use temporal markers like “century” and “years” more heavily, whereas Trump 2017 emphasizes “people” and “country,” and Trump 2025 introduces less semantically rich terms like “tonight” and “members.” This suggests that Biden and Obama frame their discourse within broader historical or national narratives, while Trump’s tone is more anchored in people and immediacy. Topic 2 emphasizes legislative or executive action; terms like “jobs,” “act,” “congress,” “plan,” “president.” Biden leads with “jobs” and “plan,” showing a proactive, policy-driven agenda. Obama includes “congress,” “can,” and “tonight,” indicating direct appeals for action. Trump 2017 uses “today,” “world,” and “nation” to ground his points in current national challenges. Trump 2025's focus shifts to adjectives like “good” and “beautiful,” reflecting a more rhetorical or persuasive tone rather than action-based content.
 
-Topic 3 contains terms related to economic or systemic issues (“work,” “tax,” “system,” “country,” “nation,” “immigration”). Obama emphasizes economic concerns (“jobs,” “high,” “tax”), while Biden highlights social policy (“families,” “care,” and “plan”). Trump 2017’s emphasis on “immigration,” “system,” and “access” aligns with his strong rhetoric on national security and structural change. Trump 2025 is more subdued, with “million” and “people” suggesting a populist or budget-driven framing. Topic 4 seems linked to governance, rights, and institutions — words like “congress,” “pass,” “right,” “pandemic,” “department,” “fight,” etc. Biden's top terms like “congress,” “pass,” and “americans” signal a legislative focus with civic responsibility. Obama focuses more on urgency and moral reasoning (“need,” “get,” “make”), while Trump 2017 features “department,” “country,” and “terrorists,” suggesting a national security tone. Trump 2025 emphasizes action and resistance with “fight,” “make,” “ever,” and “american.” Topic 5 is rooted in democratic values and collective identity — with “democracy,” “people,” “justice,” “lives,” “citizens,” “families,” “vote.” Biden uses strong democratic markers like “democracy,” “justice,” “opportunity.” Obama emphasizes “vote,” “families,” “deserve” — reinforcing civic engagement. Trump 2017's terms are less emotionally charged (“across,” “today,” “nation”), and Trump 2025 again returns to general patriotic terms like “country,” “us,” and “ever.” This shows how Trump leans more on nationalism than explicitly democratic ideals.
+Topic 3 contains terms related to economic or systemic issues (“work,” “tax,” “system,” “country,” “nation,” “immigration”). Obama emphasizes economic concerns (“jobs,” “high,” “tax”), while Biden highlights social policy (“families,” “care,” and “plan”). Trump 2017’s emphasis on “immigration,” “system,” and “access” aligns with his strong rhetoric on national security and structural change. Trump 2025 is more subdued, with “million” and “people” suggesting a populist or budget-driven framing. Topic 4 seems linked to governance, rights, and institutions; words like “congress,” “pass,” “right,” “pandemic,” “department,” “fight,” etc. Biden's top terms like “congress,” “pass,” and “americans” signal a legislative focus with civic responsibility. Obama focuses more on urgency and moral reasoning (“need,” “get,” “make”), while Trump 2017 features “department,” “country,” and “terrorists,” suggesting a national security tone. Trump 2025 emphasizes action and resistance with “fight,” “make,” “ever,” and “american.” Topic 5 is rooted in democratic values and collective identity; with “democracy,” “people,” “justice,” “lives,” “citizens,” “families,” “vote.” Biden uses strong democratic markers like “democracy,” “justice,” “opportunity.” Obama emphasizes “vote,” “families,” “deserve” — reinforcing civic engagement. Trump 2017's terms are less emotionally charged (“across,” “today,” “nation”), and Trump 2025 again returns to general patriotic terms like “country,” “us,” and “ever.” This shows how Trump leans more on nationalism than explicitly democratic ideals.
 
 #### General topic modeling discussion
 
 Although this comparison can give us clear information differences, we will try to compare each president's speeches in a more separate way. First, when comparing Trump’s 2017 and 2025 speeches, one of the most striking differences lies in the dominant topics and how they are introduced throughout the speech. In 2017, Trump's address focused heavily on national security, immigration, and economic revitalization, with clear references to restoring borders, protecting American workers, and bringing manufacturing back to the U.S. These topics appeared in a structured pattern throughout the speech, giving a sense of control and alignment with his "America First" platform. By contrast, the 2025 speech, while still retaining a populist tone, appeared slightly more fragmented, with greater emphasis on broad themes such as national identity, citizen stories, and social appeals. This shift suggests a subtle change in rhetorical strategy (from implementation of promises to reflecting on outcomes and reinforcing emotional appeal).
 
-In terms of topic flow, the 2017 speech demonstrated more distinct topic blocks, with each section clearly dedicated to a different policy domain, including healthcare, military, and economic policy. This segmentation gave the speech a more organized and agenda-driven structure. The 2025 speech, on the other hand, showed a more interwoven flow of topics, often mixing references to personal stories, political achievements, and calls for unity within the same segments. This may indicate an attempt to appeal to a broader audience or to reflect a matured presidential persona that integrates policies within a larger national narrative. Another noteworthy point is the emotional tone. Trump’s 2017 speech, while firm and assertive, maintained a business-like delivery that aligned with his image as an outsider entering politics to "clean up Washington." The language in the 2025 speech, however, leaned more heavily into emotional and patriotic appeals, with a notable increase in references to individuals, values, and legacy. This emotional shift could be interpreted as an effort to consolidate public support and present his leadership in a more reflective, almost legacy-defining light — something typical in second-term narratives or late-career rhetoric.  Finally, when looking at the vocabulary and keywords driving the topic models, we observe that terms in the 2017 speech were more policy-oriented ("jobs," "tax," "border," "security"), whereas the 2025 topics included words like "people," "freedom," "back," and "great," suggesting a move toward symbolism and shared identity rather than just concrete legislative goals. This linguistic change further supports the idea that Trump’s later speech pivoted from promises and plans to affirming a collective narrative, possibly to shape public memory of his administration.
+In terms of topic flow, the 2017 speech demonstrated more distinct topic blocks, with each section clearly dedicated to a different policy domain, including healthcare, military, and economic policy. The 2025 speech, on the other hand, showed a more combined flow of topics, often mixing references to personal stories, political achievements, and calls for unity within the same segments. This may indicate an attempt to appeal to a broader audience or to reflect a matured presidential persona that integrates policies within a larger national narrative. Another noteworthy point is the emotional tone. Trump’s 2017 speech, while firm and assertive, maintained a business-like delivery that aligned with his image as an outsider entering politics to "clean up Washington." The language in the 2025 speech, however, leaned more heavily into emotional and patriotic appeals, with a notable increase in references to individuals, values, and legacy. This emotional shift could be interpreted as an effort to consolidate public support and present his leadership in a more reflective, almost legacy-defining light.  Finally, when looking at the vocabulary and keywords driving the topic models, we observe that terms in the 2017 speech were more policy-oriented ("jobs," "tax," "border," "security"), whereas the 2025 topics included words like "people," "freedom," "back," and "great," suggesting a move toward symbolism and shared identity rather than just concrete legislative goals. This linguistic change further supports the idea that Trump’s later speech pivoted from promises and plans to affirming a collective narrative, possibly to shape public memory of his administration.
 
-Second, when comparing Trump with Obama, the contrast in rhetorical structure and thematic distribution becomes even more pronounced. Obama’s 2013 State of the Union address demonstrated a high degree of topical coherence, with economic recovery and legislative priorities being dominant. His speech emphasized forward-thinking policies (green energy, education reform) and maintained a tone of measured optimism. In contrast, Trump’s speeches, especially in 2017, focused more on disruption and change, using sharper, more action-oriented language to underline a break from previous administrations. This difference highlights a broader ideological contrast: Obama positioned himself as a unifier and reformer, while Trump framed himself as a reformer through confrontation. Another point of difference is how both presidents framed national identity and values. Obama’s discourse often integrated diversity, inclusivity, and opportunity as core American values, whereas Trump centered his discourse around sovereignty, protectionism, and strength. This is evident in the dominant topics from their respective models — where Obama’s speech frequently referred to “families,” “education,” “jobs,” and “future,” Trump’s top terms included “border,” “order,” “enforcement,” and “America First.” These contrasting priorities reflect not just different political agendas but also different visions of American society.
+Second, when comparing Trump with Obama, the contrast in rhetorical structure and thematic distribution becomes even more pronounced. Obama’s 2013 State of the Union address demonstrated a high degree of topical coherence, with economic recovery and legislative priorities being dominant. His speech emphasized forward-thinking policies (green energy, education reform) and maintained a tone of measured optimism. In contrast, Trump’s speeches, especially in 2017, focused more on disruption and change, using sharper, more action-oriented language to underline a break from previous administrations. This difference highlights a broader ideological contrast: Obama positioned himself as a unifier and reformer, while Trump framed himself as a reformer through confrontation. Another point of difference is how both presidents framed national identity and values. Obama’s discourse often integrated diversity, inclusivity, and opportunity as core American values, whereas Trump centered his discourse around sovereignty, protectionism, and strength. This is evident in the dominant topics from their respective models where Obama’s speech frequently referred to “families,” “education,” “jobs,” and “future,” Trump’s top terms included “border,” “order,” “enforcement,” and “America First.” These contrasting priorities reflect not just different political agendas but also different visions of American society.
 
 Third, when comparing Trump and Biden, the difference lies not only in content but also in tone and topic integration. Biden’s 2021 speech featured a balanced topic flow, with equal attention given to recovery (post-pandemic), democracy, healthcare, and unity. The emotional register was empathetic and often invoked shared struggle and resilience, contrasting with Trump’s assertive and goal-focused tone. Biden's speech made frequent use of collective pronouns ("we," "our") and framed policy as a collaborative national effort, whereas Trump’s speeches often leaned into "I" and "they," underscoring personal leadership and external threats.
 
@@ -1482,3 +1482,12 @@ Overall, the topic modeling analysis across the four presidential speeches highl
 
 ## Conclusion
 
+After analyzing the inaugural speeches of Trump (2017 and 2025), Obama (2013), and Biden (2021) through sentiment analysis, term frequency (TF-IDF), and topic modeling, it becomes clear that political language is not merely a vehicle for information but a powerful tool for shaping emotion, identity, and public perception. Each president, through their choice of words, constructs a narrative that reflects not only their policy agenda but also the historical and social moment they are responding to.
+
+In the sentiment analysis phase, we observed notable contrasts. Trump’s 2017 address stood out for its high proportion of negative terms, with repeated references to crisis, danger, and threats—painting a stark portrait of a nation in decline. Obama and Biden, by contrast, employed a more optimistic tone, with positive words centering around unity, hope, and shared purpose. Interestingly, Trump’s 2025 speech, while still grounded in warnings and assertive language, integrated a noticeably higher number of joyful and uplifting words—suggesting a possible rhetorical shift toward a more emotionally engaging or legacy-driven tone.
+
+The frequency and TF-IDF analysis helped spotlight not only commonly used terms but those uniquely representative of each speech. Biden’s emphasis on terms like “pandemic” and “vaccine” anchors his message in the urgency of post-COVID recovery. Obama’s use of words like “initiative” and “encourage” reflects a call for action and cooperation, whereas Trump’s lexical focus in both speeches leaned toward protectionism and security—terms such as “border,” “fight,” and “illegal” being particularly prominent. By filtering out generic or repetitive words, the true thematic fingerprints of each presidency became more visible.
+
+Topic modeling, finally, allowed us to delve deeper into the structural and rhetorical strategies behind each address. Obama’s and Biden’s speeches were thematically woven, cycling through economic, social, and moral themes in a balanced, fluid manner. Trump’s 2017 speech was more segmented, with each policy area clearly separated, underscoring a methodical presentation of issues. However, the 2025 speech reflected a more blended narrative approach—one where emotion, identity, and national pride are interlaced with policy and political rhetoric. This evolution suggests a shift from outsider urgency to legacy consolidation, where storytelling becomes just as important as action plans.
+
+Altogether, the combination of sentiment, frequency, and topic modeling reveals how presidential speeches are crafted not just to inform, but to resonate. These texts are performative acts—designed to persuade, unify, divide, comfort, or mobilize. While all four presidents share themes like economy, governance, and national identity, the way they frame these ideas differs significantly. Since what politicians say often sticks with people even more than what they actually do, digging into how these speeches are built (what words they use and what topics they focus on) really helps us see what mattered to people at the time, what they were worried about, and what they were hoping for.
