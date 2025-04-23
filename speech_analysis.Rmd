@@ -140,6 +140,8 @@ final_text_2013 <- final_text_2013[nchar(trimws(final_text_2013)) > 0]
 
 ## Text processing
 
+Now, we will proceed with the three text analysis techniques that were previously mentioned (*Sentiment Analysis*, *Term Frequency* and *Topic Modeling*).
+
 ### Sentiment analysis
 
 Sentiment analysis is a popular task in natural language processing. Our goal with sentiment analysis is to classify the text based on the mood or mentality expressed in the inauguration speeches. First, we will identify the most common joy and fear words in Trump´s speeches, then we will study their evolution and check the proportion of negative and positive words. We will finish the sentiment analysis with a *wordcloud* representation
@@ -219,7 +221,6 @@ trump2025_joy_words <- sentiment_data %>%
     filter(speech == "Trump_2025") %>%
     inner_join(nrc_joy) %>%
     count(word, sort = TRUE)
-
 trump2025_joy_words
 
 # fear
@@ -305,13 +306,14 @@ can reflect a common dual strategy in political discourse: evoking risk and dang
 
 #### Negative and positive words
 
-which speech has the highest proportion of negative words?
-which speech has the highest proportion of positive words?
+Negative and positive words are a way to identify terms that describe something either good, desirable or bad, detrimental. With this idea in mind, we will calculate proportions of negative and positive words and analyze them based on the four speeches we are interested in. Specifically, we are trying to discover:
+
+Which speech has the highest proportion of negative words?
+Which speech has the highest proportion of positive words?
 
 ```{r}
 # Negative words ratio
-
-#filter negative words from Bing
+# filter negative words from Bing
 bingnegative <- get_sentiments("bing") %>% 
   filter(sentiment == "negative")
 
@@ -356,6 +358,8 @@ This means that Trump's 2017 address stands out as the most negative, proportion
 On the other hand, The next table compares the use of positive words ratios. Trump's 2025 speech stands out with the highest proportion of positive words, at 5.29%, suggesting a more optimistic tone. His 2017 speech also features a relatively high percentage of positive words (4.88%), indicating a similarly positive tone. Obama's 2013 speech shows a slightly lower ratio of 4.72%, reflecting a balanced but still positive rhetoric. In contrast, Biden's 2021 speech has the lowest ratio of positive words, at 3.42%, which could imply a more measured or serious tone.
 
 #### Wordcloud representation
+
+Finally, we will create a visual representation of the data with words as single words, and the importance of each shown with font size. This is called wordcloud representation.
 
 ```{r}
 sentiment_data %>%
@@ -606,7 +610,38 @@ plot_speech <- speech_tf_idf %>%
 plot_speech
 ```
 
-As can be seen in these bar plots, the conclusions are similar to those previously discussed. Analysing each speech separately, it is striking that Obama in 2013 uses initiative-laden language using words such as let's or encourage. On the other hand, Biden's speech in 2021 is loaded with mentions of covid and vaccines, although the importance of guns is also very relevant.
+As can be seen in the two Trump bar plots, the word very appears at the top without adding too much value to the interpretation. It is better to put it as a stopword and then running the plot again.
+
+```{r}
+very_stop <- tibble(word = "very")
+
+speech_tf_idf <- speech_tf_idf |> 
+  anti_join(very_stop, by = "word")
+
+plot_speech <- speech_tf_idf %>% 
+  group_by(year) %>% 
+  slice_max(tf_idf, n = 10, with_ties = FALSE) %>% 
+  ungroup() %>%
+  mutate(word = reorder(word, tf_idf)) %>%
+  ggplot(aes(tf_idf, word, fill = year)) +
+  geom_col(show.legend = FALSE) +
+  labs(x = "tf-idf", y = NULL) +
+  facet_wrap(~ year, ncol = 2, 
+             scales = "free",
+             # President and year for the titles
+             labeller = labeller(year = president)) +
+  # We modify the limits to compare better the differences
+  scale_x_continuous(limits = c(0, 0.0025)) +
+  scale_fill_brewer(palette = "Set2") +
+  theme_minimal() +
+  theme(
+    axis.title = element_text(size = 10, face = "bold"),
+    strip.text = element_text(size = 10, face = "bold"))
+plot_speech
+
+```
+
+the conclusions are similar to those previously discussed. Analysing each speech separately, it is striking that Obama in 2013 uses initiative-laden language using words such as let's or encourage. On the other hand, Biden's speech in 2021 is loaded with mentions of covid and vaccines, although the importance of guns is also very relevant.
 
 On the other hand, analysing Trump's speeches separately also allows for some very relevant conclusions. The first thing that stands out in the 2017 speech is the multiple mentions of [*Obamacare*](https://www.usa.gov/es/salud-mercado-seguros-medicos-aca) and health insurance. These data denote a clear criticism of Barack Obama's previous government, which is complemented by personal stories using personal names (which also appear in the most relevant words of this speech). In 2025 it highlights the importance he attaches in his speech to Ukraine and to the tariff measures he had previously announced. The rest of the words do not provide us with much more information beyond being words that we need to understand in context.
 
