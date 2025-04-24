@@ -22,7 +22,7 @@ It would indeed have been more appropriate to use the inaugural speeches that di
 -   [Remarks by President Biden in Address to a Joint Session of Congress 2021](https://bidenwhitehouse.archives.gov/briefing-room/speeches-remarks/2021/04/29/remarks-by-president-biden-in-address-to-a-joint-session-of-congress/)
 -   [Remarks by President Trump in Joint Address to Congress 2025](https://www.whitehouse.gov/remarks/2025/03/remarks-by-president-trump-in-joint-address-to-congress/)
 
-In order to be able to analyze these texts as comprehensively as possible, we will use three text analysis techniques. The three techniques chosen are: *Sentiment Analysis*, *Term Frequency* and *Topic Modeling*. These tools will be used separately, but will be presented together at the end of the work in order to draw conclusive results on the different discourses.
+In order to be able to analyze these texts as comprehensively as possible, we will use three text analysis techniques. The three techniques chosen are: *Sentiment Analysis*, *Term Frequency* and *Topic Modeling*. These tools will be used separately, but will be presented together at the end of the work in order to draw conclusive results on the different discourses. In particular, we are very interested in analysing the results of topic modelling, as it will be useful to group and complement the conclusions drawn from the first two techniques.
 
 ## Libraries
 
@@ -46,11 +46,16 @@ library(reshape2)
 ```
 
 We will use these libraries for:
-- Manipulate and clean up text (tidyverse, tidytext, readr, reshape2). To import, structure, and transform textual data into tidy formats that are easier to analyze.
-- Remove empty words and prepare textual data (tm, SnowballC, textdata). To clean and normalize the text by removing stopwords, applying stemming, and incorporating external lexicons.
-- Apply topic models such as LDA (topicmodels). To identify and analyze latent topics within a corpus of documents.
-- Measure similarity between documents (proxy). To compute distance or similarity metrics between text elements, which supports clustering or recommendation tasks.
-- Visualize and present results (wordcloud, RColorBrewer, scales, knitr, kableExtra). To create informative and aesthetic visualizations like word clouds and well-formatted tables for reports or presentations.
+
+-   Manipulate and clean up text (tidyverse, tidytext, readr, reshape2). To import, structure, and transform textual data into tidy formats that are easier to analyze.
+
+-   Remove empty words and prepare textual data (tm, SnowballC, textdata). To clean and normalize the text by removing stopwords, applying stemming, and incorporating external lexicons.
+
+-   Apply topic models such as LDA (topicmodels). To identify and analyze latent topics within a corpus of documents.
+
+-   Measure similarity between documents (proxy). To compute distance or similarity metrics between text elements, which supports clustering or recommendation tasks.
+
+-   Visualize and present results (wordcloud, RColorBrewer, scales, knitr, kableExtra). To create informative and aesthetic visualizations like word clouds and well-formatted tables for reports or presentations.
 
 ## Data cleaning
 
@@ -236,7 +241,7 @@ trump2025_fear_words <- sentiment_data %>%
 trump2025_fear_words
 ```
 
-In Trump’s 2025 inaugural speech, the most frequent joy-related words include “good” (20),    “money” (18), “beautiful” (17), “love” (13), “luck” (9), “pay” (8), “daughter” (7), “child” (6), “create” (6), and “successful” (6). These words could reflect a strong emphasis on prosperity, traditional family values, and personal success, these words could aim to inspire confidence in economic growth and cultural pride. 
+In Trump’s 2025 inaugural speech, the most frequent joy-related words include “good” (20), “money” (18), “beautiful” (17), “love” (13), “luck” (9), “pay” (8), “daughter” (7), “child” (6), “create” (6), and “successful” (6). These words could reflect a strong emphasis on prosperity, traditional family values, and personal success, these words could aim to inspire confidence in economic growth and cultural pride.
 
 Simultaneously, the most common fear-related words: “dangerous” (9), “government” (9), “military” (9), “fight” (8), “illegal” (8), “police” (8), “bad” (7), “inflation” (7), “gang” (6), and “powerful” (5) highlight a narrative of threat and instability, pointing toward concerns about crime, public safety, institutional power, and economic insecurity. The fact that he also mentioned words like “love” and “beautiful” with alarming terms like “dangerous” and “fight” could reveal a strategy centered on contrast: portraying Trump as the defender of a prosperous, idealized America under threat from forces both internal and external.
 
@@ -269,7 +274,7 @@ ggplot(evolution_sentiment, aes(index, sentiment, fill = speech)) +
 
 The sentiment trajectory across the four inaugural speeches reveals some differences. Trump’s 2025 speech shows the highest variability, with sentiment increasing steadily across chunks and peaking in the middle, suggesting a deliberate emotional buildup aimed at energizing and inspiring his audience toward the end.
 
-In contrast, Trump’s 2017 address maintains a more uniform tone with moderate sentiment, indicating a focus on identifying problems without an emotionally charged resolution. 
+In contrast, Trump’s 2017 address maintains a more uniform tone with moderate sentiment, indicating a focus on identifying problems without an emotionally charged resolution.
 
 Obama’s 2013 speech is characterized by steady, more positive sentiment, while Biden’s 2021 speech shows a quick rise in sentiment early on, likely offering hope after acknowledging national challenges, before dipping back to a more neutral tone.
 
@@ -302,15 +307,13 @@ On the positive side, the most influential word is "thank", far surpassing other
 
 On the other hand, the most frequent negative word is “hard,” which can carry a neutral connotation depending on context ("hard work" vs "hard times"), but is still tagged as negative. Other key contributors include “dangerous,” “crisis,” “illegal,” “poverty,” “terrorism,” and “crime,” all of which suggest concern, urgency, or threat. These terms reflect the speeches’ acknowledgment of national and global challenges.
 
-Altogether, the balance of words like “love” and “support” with “crisis” and “threat”
-can reflect a common dual strategy in political discourse: evoking risk and danger to justify action, while simultaneously promising strength, unity, and improvement.
+Altogether, the balance of words like “love” and “support” with “crisis” and “threat” can reflect a common dual strategy in political discourse: evoking risk and danger to justify action, while simultaneously promising strength, unity, and improvement.
 
 #### Negative and positive words
 
 Negative and positive words are a way to identify terms that describe something either good, desirable or bad, detrimental. With this idea in mind, we will calculate proportions of negative and positive words and analyze them based on the four speeches we are interested in. Specifically, we are trying to discover:
 
-Which speech has the highest proportion of negative words?
-Which speech has the highest proportion of positive words?
+Which speech has the highest proportion of negative words? Which speech has the highest proportion of positive words?
 
 ```{r}
 # Negative words ratio
@@ -611,13 +614,14 @@ plot_speech <- speech_tf_idf %>%
 plot_speech
 ```
 
-As can be seen in the two Trump bar plots, the word very appears at the top without adding too much value to the interpretation. It is better to put it as a stopword and then running the plot again.
+As can be seen in the two Trump bar plots, the word very appears at the top without adding too much value to the interpretation. It is better to put it as a stopword and then running the plot again. We can also add the nouns mentioned in the first Trump speech.
 
 ```{r}
-very_stop <- tibble(word = "very")
+trump_stop <- tibble(word = c("very", "susan", "oliver", "megan´s", 
+                              "jenna", "jamiel", "250th"))
 
 speech_tf_idf <- speech_tf_idf |> 
-  anti_join(very_stop, by = "word")
+  anti_join(trump_stop, by = "word")
 
 plot_speech <- speech_tf_idf %>% 
   group_by(year) %>% 
@@ -638,13 +642,13 @@ plot_speech <- speech_tf_idf %>%
   theme(
     axis.title = element_text(size = 10, face = "bold"),
     strip.text = element_text(size = 10, face = "bold"))
-plot_speech
 
+plot_speech
 ```
 
-the conclusions are similar to those previously discussed. Analysing each speech separately, it is striking that Obama in 2013 uses initiative-laden language using words such as let's or encourage. On the other hand, Biden's speech in 2021 is loaded with mentions of covid and vaccines, although the importance of guns is also very relevant.
+The conclusions are similar to those previously discussed. By analysing each speech separately, it is striking that Obama in 2013 uses initiative-laden language using words such as let's or encourage. On the other hand, Biden's speech in 2021 is loaded with mentions of covid and vaccines, although the importance of guns is also very relevant.
 
-On the other hand, analysing Trump's speeches separately also allows for some very relevant conclusions. The first thing that stands out in the 2017 speech is the multiple mentions of [*Obamacare*](https://www.usa.gov/es/salud-mercado-seguros-medicos-aca) and health insurance. These data denote a clear criticism of Barack Obama's previous government, which is complemented by personal stories using personal names (which also appear in the most relevant words of this speech). In 2025 it highlights the importance he attaches in his speech to Ukraine and to the tariff measures he had previously announced. The rest of the words do not provide us with much more information beyond being words that we need to understand in context.
+On the other hand, analysing Trump's speeches separately also allows for some very relevant conclusions. First of all, although we tried to filter out the names included in the speech of 2017, it seems that it is a long list because we still get more names. Another thing that stands out in the 2017 speech is the multiple mentions of [*Obamacare*](https://www.usa.gov/es/salud-mercado-seguros-medicos-aca) and health insurance. These data denote a clear criticism of Barack Obama's previous government, which is complemented by personal stories using the personal names adressed before (which also appear in the most relevant words of this speech). In 2025 it highlights the importance he attaches in his speech to Ukraine and to the tariff measures he had previously announced. The rest of the words do not provide us with much more information beyond being words that we need to understand in context.
 
 With the sentiment analysis and term frequency tools, we were able to get an idea of the content and characteristics of the discourses. However, it is necessary to supplement these results with topic modelling in order to draw more developed conclusions.
 
@@ -652,11 +656,11 @@ With the sentiment analysis and term frequency tools, we were able to get an ide
 
 We will now start with the last technique, Topic Modeling. This is a common technique in natural language processing used to discover hidden themes in large collections of text. Our goal with topic modeling is to uncover the main topics discussed in the inauguration speeches and understand how they vary between presidents. First, we will preprocess the text to build a document-term matrix, then we will apply Latent Dirichlet Allocation (LDA) to extract a set of dominant topics. We will analyze the top words associated with each topic and we will conclude with a visualization of the topic distribution across different speeches.
 
-We will start by analyzing Trump's speeches, for being able to compare them to the other president's speeches later on. 
+We will start by analyzing Trump's speeches, for being able to compare them to the other president's speeches later on.
 
 #### Trump 2017 speech
 
-##### Convert the text into a data frame 
+##### Convert the text into a data frame
 
 In order to be able to analyze the text, we need to convert it into a structured data frame, where each line of speech has an identifier (line). This facilitates the following cleaning and analysis operations. As a result, we obtain a tibble with two columns: line (line number) and text (textual content).
 
@@ -691,7 +695,7 @@ Once we have our cleaned and tokenized text represented as a DTM, we can use LDA
 lda_model <- LDA(df_dtm, k = 4, control = list(seed = 1234)) # Supposing we want to find 4 themes
 ```
 
-Now that we have our LDA performed, we will use "matrix = "beta"" to extract the probability of a word given a theme. We will choose the 10 most representative words for each theme and we will visualize the results in a graph.  
+Now that we have our LDA performed, we will use "matrix = "beta"" to extract the probability of a word given a theme. We will choose the 10 most representative words for each theme and we will visualize the results in a graph.
 
 ```{r}
 # Extract the most representative terms by topic
@@ -713,10 +717,15 @@ top_terms %>%
   coord_flip() +
   scale_x_reordered() +
   labs(title = "Top 10 terms by theme",
-       x = NULL, y = expression(beta))
+       x = NULL, y = expression(beta))  +
+  scale_fill_brewer(palette = "Set2") +
+  theme_minimal() +
+  theme(
+    axis.title = element_text(size = 10, face = "bold"),
+    strip.text = element_text(size = 10, face = "bold"))
 ```
 
-In the visualization above each facet corresponds to a topic, and the length of the bars reflects the probability (β) that each word belongs to that topic. For example, in Topic 1, terms like great, america, country, and people are prominent, suggesting that this topic may relate to patriotic rhetoric and national pride. Topic 2 includes words such as us, must, american, states, and support, indicating a theme around collective action, duty, and perhaps military or international alliances. In Topic 3, terms like health, infrastructure, insurance, and government point toward domestic policy issues such as healthcare and public services. Topic 4 contains words such as immigration, system, believe, and nations, which likely refer to foreign policy and immigration reform. However, some overlapping terms like american and america appear across multiple topics, which may reduce topic distinctiveness. This overlap can be common in political speeches where key thematic words are repeated frequently. 
+In the visualization above each facet corresponds to a topic, and the length of the bars reflects the probability (β) that each word belongs to that topic. For example, in Topic 1, terms like great, america, country, and people are prominent, suggesting that this topic may relate to patriotic rhetoric and national pride. Topic 2 includes words such as us, must, american, states, and support, indicating a theme around collective action, duty, and perhaps military or international alliances. In Topic 3, terms like health, infrastructure, insurance, and government point toward domestic policy issues such as healthcare and public services. Topic 4 contains words such as immigration, system, believe, and nations, which likely refer to foreign policy and immigration reform. However, some overlapping terms like american and america appear across multiple topics, which may reduce topic distinctiveness. This overlap can be common in political speeches where key thematic words are repeated frequently.
 
 That is why, we will improve the quality of the topics identified. In this case, the graph shows some very repetitive and not very distinctive words that appear in several themes and do not help to differentiate well between them. We will go back to the cleanup step and manually remove frequent words that were not automatically removed, such as “america”, “american”, “must”, “one”, etc.; we will re-generate the DTM and re-apply the LDA model and test with different values of k to see if the topics are more coherent.
 
@@ -756,11 +765,15 @@ top_terms_refined %>%
   coord_flip() +
   scale_x_reordered() +
   labs(title = "Top 10 terms by topic (refined)",
-       x = NULL, y = expression(beta))
-
+       x = NULL, y = expression(beta)) +
+  scale_fill_brewer(palette = "Set2") +
+  theme_minimal() +
+  theme(
+    axis.title = element_text(size = 10, face = "bold"),
+    strip.text = element_text(size = 10, face = "bold"))
 ```
 
-The updated visualization reveals more coherent and meaningful themes compared to the initial version. After refining the preprocessing step and removing generic, high-frequency words like “america” and “american”, the model now produces topics with more distinct and interpretable vocabularies. For instance, Topic 1 includes terms such as great, country, health, administration, and citizens, suggesting a focus on national pride, governance, and public services. Topic 2, with words like every, world, year, united, and history, appears to address broader, possibly international or historical themes and global cooperation. Topic 3 is strongly characterized by the presence of words like system, immigration, create, and access, pointing towards themes of immigration reform, policy systems, and support initiatives. Finally, Topic 4 contains terms like terrorism, trade, respect, and allies, clearly reflecting concerns about foreign policy, international relations, and national security. Overall, this version of the model shows better topic separation and thematic clarity. 
+The updated visualization reveals more coherent and meaningful themes compared to the initial version. After refining the preprocessing step and removing generic, high-frequency words like “america” and “american”, the model now produces topics with more distinct and interpretable vocabularies. For instance, Topic 1 includes terms such as great, country, health, administration, and citizens, suggesting a focus on national pride, governance, and public services. Topic 2, with words like every, world, year, united, and history, appears to address broader, possibly international or historical themes and global cooperation. Topic 3 is strongly characterized by the presence of words like system, immigration, create, and access, pointing towards themes of immigration reform, policy systems, and support initiatives. Finally, Topic 4 contains terms like terrorism, trade, respect, and allies, clearly reflecting concerns about foreign policy, international relations, and national security. Overall, this version of the model shows better topic separation and thematic clarity.
 
 We will also try different values of k, for example 3 or 5, to see if the topics are more consistent.
 
@@ -792,7 +805,12 @@ top_terms_k5 %>%
   coord_flip() +
   scale_x_reordered() +
   labs(title = "Top 10 terms by topic (k = 5)",
-       x = NULL, y = expression(beta))
+       x = NULL, y = expression(beta)) +
+  scale_fill_brewer(palette = "Set2") +
+  theme_minimal() +
+  theme(
+    axis.title = element_text(size = 10, face = "bold"),
+    strip.text = element_text(size = 10, face = "bold"))
 
 # Try with k = 3
 topics_terms_k3 <- tidy(lda_models[["3"]], matrix = "beta")
@@ -811,21 +829,25 @@ top_terms_k3 %>%
   coord_flip() +
   scale_x_reordered() +
   labs(title = "Top 10 terms by topic (k = 3)",
-       x = NULL, y = expression(beta))
-
+       x = NULL, y = expression(beta)) +
+  scale_fill_brewer(palette = "Set2") +
+  theme_minimal() +
+  theme(
+    axis.title = element_text(size = 10, face = "bold"),
+    strip.text = element_text(size = 10, face = "bold"))
 ```
 
 When comparing the LDA models with k = 3 and k = 5, we observe noticeable differences in the specificity and interpretability of the topics. The model with k = 3 generates broader, more general topics. For instance, Topic 1 and Topic 2 include terms like country, people, world, and united, which overlap significantly and may reduce the semantic distinction between topics. Topic 3 in this model clusters words related to policy and immigration (system, immigration, help, create), but the grouping still feels somewhat mixed and less thematically tight. This model captures the overall themes of the speech, but the topics are somewhat diluted and less actionable for deeper insight.
 
 In contrast, the k = 5 model presents more clearly defined topics, each centered around a specific aspect of the speech. For example, Topic 1 contains personal and ceremonial terms like tonight, thank, ryan, and great, suggesting emotional or introductory language. Topic 2 reflects economic and administrative themes (companies, tax, jobs, borders), while Topic 3 seems to highlight American citizens and support (help, choice, access). Topic 4 is strongly focused on immigration and security (terrorism, immigration, system, respect), and Topic 5 touches on diplomatic and visionary rhetoric (allies, believe, future, free). This greater topic resolution offers clearer insights into the structure and rhetoric of the speech, making k = 5 a more effective choice for interpretability in this context.
 
-So, we decide to use the LDA model with k = 5 because it offers a clearer and more interpretable separation between topics. 
+So, we decide to use the LDA model with k = 5 because it offers a clearer and more interpretable separation between topics.
 
 ```{r}
 lda_final <- lda_models[["5"]]
 ```
 
-We will extract the top words for each topic again. 
+We will extract the top words for each topic again.
 
 ```{r}
 # Extract top words for each topic
@@ -839,15 +861,9 @@ topics_final %>%
   select(topic, term, beta) %>%
   knitr::kable() %>%
   kableExtra::kable_styling(full_width = FALSE)
-
 ```
 
-So, although the interpretation of topics based on top terms has already been done, we can conclude that the main topics are:
-1. Ceremonial and Governance
-2. Economy and Policy
-3. Support and Personal Appeals
-4. Security and Immigration
-5. Vision and Diplomacy
+So, although the interpretation of topics based on top terms has already been done, we can conclude that the main topics are: 1. Ceremonial and Governance 2. Economy and Policy 3. Support and Personal Appeals 4. Security and Immigration 5. Vision and Diplomacy
 
 ##### Assigning themes to each line of the speech
 
@@ -871,7 +887,7 @@ df_trump_topics <- df_trump %>%
 
 We will create 3 different ways to visualize the results:
 
-First we will view representative examples by theme. This will help understand qualitatively what type of content falls under each theme, also helping confirm that the topic assignments match their intended meaning. 
+First we will view representative examples by theme. This will help understand qualitatively what type of content falls under each theme, also helping confirm that the topic assignments match their intended meaning.
 
 ```{r}
 # 3 representative lines by each topic
@@ -891,22 +907,27 @@ df_trump_topics %>%
   count(topic) %>%
   ggplot(aes(x = factor(topic), y = n, fill = factor(topic))) +
   geom_col(show.legend = FALSE) +
-  labs(title = "Number of lines per topic", x = "Topic", y = "Line count")
-
+  labs(title = "Number of lines per topic", x = "Topic", y = "Line count") +
+  scale_fill_brewer(palette = "Set2") +
+  theme_minimal() +
+  theme(axis.title = element_text(size = 10, face = "bold"))
 ```
 
-Finally, we will watch the evolution of topics along the speech. This will help us analyze structure and flow. 
+Finally, we will watch the evolution of topics along the speech. This will help us analyze structure and flow.
+
 ```{r}
 # Change of topics all along the speech
 df_trump_topics %>%
   mutate(line = as.numeric(document)) %>%
   ggplot(aes(x = line, y = topic, color = factor(topic))) +
   geom_point() +
-  labs(title = "Topic flow throughout the speech", x = "Line number", y = "Topic")
-
+  labs(title = "Topic flow throughout the speech", x = "Line number", y = "Topic") +
+  scale_fill_brewer(palette = "Set2") +
+  theme_minimal() +
+  theme(axis.title = element_text(size = 10, face = "bold"))
 ```
 
-After assigning the most likely topic to each line of President Trump’s 2017 speech, we examined the results and these are the results: 
+After assigning the most likely topic to each line of President Trump’s 2017 speech, we examined the results and these are the results:
 
 The frequency analysis reveals that Topic 3 dominates the speech, followed by Topics 2 and 5, while Topic 4 is the least frequent. This suggests that the speech is heavily focused on citizen-related appeals, social policy, and support systems (Topic 3), along with economic and governmental issues (Topic 2), and visionary or diplomatic language (Topic 5). In contrast, security and immigration (Topic 4) occupies a smaller portion, indicating it was treated as a specific section rather than a recurring theme.
 
@@ -918,13 +939,13 @@ Overall, thematic analysis of Trump’s 2017 State of the Union reveals a speech
 
 All in all, the topic modelling helped break down the speech into clear themes and showed how they’re spread across the text. It also made it easier to understand how Trump uses different topics to connect with the audience and deliver his message more effectively.
 
-We will now proceed to do the same thing with the other 3 speeches we want to analyze, but we will make the explanation shorter, as we have already discussed everything in this first analysis. We will just replicate what has been done, in order to be able to compare the 4 speeches at the end. 
+We will now proceed to do the same thing with the other 3 speeches we want to analyze, but we will make the explanation shorter, as we have already discussed everything in this first analysis. We will just replicate what has been done, in order to be able to compare the 4 speeches at the end.
 
 #### Trump 2025 speech
 
-We first need to clean the text and make it in a suitable format for practicing topic modeling. 
+We first need to clean the text and make it in a suitable format for practicing topic modeling.
 
-We will now convert it to a dataframe and apply tokenization. 
+We will now convert it to a dataframe and apply tokenization.
 
 ```{r}
 # Convert into a dataframe
@@ -945,7 +966,7 @@ df_dtm_2025 <- df_words_2025 %>%
   cast_dtm(document = line, term = word, value = n)
 ```
 
-Once we have our cleaned and tokenized text represented as a DTM, we can use LDA to uncover the hidden thematic structure within the text. We will use K = 5 in order to be able to compare all the speeches at the end. 
+Once we have our cleaned and tokenized text represented as a DTM, we can use LDA to uncover the hidden thematic structure within the text. We will use K = 5 in order to be able to compare all the speeches at the end.
 
 ```{r}
 lda_2025 <- LDA(df_dtm_2025, k = 5, control = list(seed = 1234))
@@ -973,10 +994,15 @@ top_terms_2025 %>%
   coord_flip() +
   scale_x_reordered() +
   labs(title = "Top 10 terms per topic (Trump 2025 Speech)",
-       x = NULL, y = expression(beta))
+       x = NULL, y = expression(beta)) +
+  scale_fill_brewer(palette = "Set2") +
+  theme_minimal() +
+  theme(
+    axis.title = element_text(size = 10, face = "bold"),
+    strip.text = element_text(size = 10, face = "bold"))
 ```
 
-In this case, several high-frequency words like “applause”, “it's”, and “going” appeared in multiple topics without adding real semantic value. Removing these can help the model focus on more meaningful content and improve the clarity and coherence of the topics, so, we need to create a custom list of stopwords and do the whole process again. 
+In this case, several high-frequency words like “applause”, “it's”, and “going” appeared in multiple topics without adding real semantic value. Removing these can help the model focus on more meaningful content and improve the clarity and coherence of the topics, so, we need to create a custom list of stopwords and do the whole process again.
 
 ```{r}
 # List of customized stopwords
@@ -995,7 +1021,7 @@ df_words_2025_clean <- df_2025_clean %>%
   filter(!str_detect(word, "^[0-9]+$"))                  
 ```
 
-We will now convert it into DTM and apply LDA again. 
+We will now convert it into DTM and apply LDA again.
 
 ```{r}
 # Convert into DTM
@@ -1007,7 +1033,7 @@ df_dtm_2025_clean <- df_words_2025_clean %>%
 lda_2025_clean <- LDA(df_dtm_2025_clean, k = 5, control = list(seed = 1234))
 ```
 
-And we will recreate the visualization in order to see if the information obtained is more useful and informative. 
+And we will recreate the visualization in order to see if the information obtained is more useful and informative.
 
 ```{r}
 # Extract the most representative terms by topic
@@ -1029,7 +1055,12 @@ top_terms_2025_clean %>%
   coord_flip() +
   scale_x_reordered() +
   labs(title = "Top 10 terms per topic (Trump 2025 – Improved Cleaning)",
-       x = NULL, y = expression(beta))
+       x = NULL, y = expression(beta)) +
+  scale_fill_brewer(palette = "Set2") +
+  theme_minimal() +
+  theme(
+    axis.title = element_text(size = 10, face = "bold"),
+    strip.text = element_text(size = 10, face = "bold"))
 ```
 
 The final version of Trump’s 2025 speech offers a well-structured and thematically clear breakdown. Topic 1 includes words like “years”, “tonight”, “members”, “history”, and “days”, which seem to relate to ceremonial references, past accomplishments, or commemorative remarks (possibly the opening of the speech or reflective segments). Topic 2 centers around “good”, “beautiful”, “job”, “luck”, and “hard”, indicating an optimistic tone focused on personal achievements, character traits, or positive evaluations of people and efforts. This likely reflects moments of praise or uplifting rhetoric. Topic 3 is characterized by “million”, “money”, “world”, “country”, “tax”, and “united states”, suggesting a strong emphasis on economic issues, national finances, and global positioning (themes common in economic and geopolitical sections of the speech). Topic 4 includes terms like “us”, “fight”, “make”, “money”, and “congress”, which indicate a call to action, national strength, and perhaps direct political challenges or legislative goals. Finally, Topic 5 stands out for including more unique and specific terms like “panama”, “roberto”, “canal”, and “administration”, hinting at a reference to foreign policy or a historical anecdote about international relations and infrastructure (likely a specific story or example included for rhetorical effect).
@@ -1066,29 +1097,35 @@ df_trump_topics_2025 %>%
   count(topic) %>%
   ggplot(aes(x = factor(topic), y = n, fill = factor(topic))) +
   geom_col(show.legend = FALSE) +
-  labs(title = "Number of lines per topic", x = "Topic", y = "Line count")
+  labs(title = "Number of lines per topic", x = "Topic", y = "Line count") +
+  scale_fill_brewer(palette = "Set2") +
+  theme_minimal() +
+  theme(axis.title = element_text(size = 10, face = "bold"))
 
 # Topic evolution throughout the discourse
 df_trump_topics_2025 %>%
   mutate(line = as.numeric(document)) %>%
   ggplot(aes(x = line, y = topic, color = factor(topic))) +
   geom_point() +
-  labs(title = "Topic flow throughout the speech", x = "Line number", y = "Topic")
+  labs(title = "Topic flow throughout the speech", x = "Line number", y = "Topic") +
+  scale_fill_brewer(palette = "Set2") +
+  theme_minimal() +
+  theme(axis.title = element_text(size = 10, face = "bold"))
 ```
 
-The topic assignment reveals a well-distributed thematic structure throughout the speech. From the bar chart, we can observe that Topics 2 and 3 are the most dominant, each appearing in over 70 lines. These likely represent the speech’s core themes—potentially centered on economy, job creation, or patriotic sentiments—depending on how they were previously interpreted. Topic 1 also has strong representation (around 55 lines), possibly related to commemorative or ceremonial aspects of the address. Topics 4 and 5 show slightly fewer occurrences but are still meaningfully present. Topic 4 could correspond to policy initiatives or calls to action, while Topic 5 may deal with foreign affairs or historical references, based on previous top term analysis. Interestingly, a few lines remain unclassified (NA). These are likely short or vague segments (“Thank you very much”), which don’t contain enough information for the LDA model to confidently assign them to a topic. 
+The topic assignment reveals a well-distributed thematic structure throughout the speech. From the bar chart, we can observe that Topics 2 and 3 are the most dominant, each appearing in over 70 lines. These likely represent the speech’s core themes—potentially centered on economy, job creation, or patriotic sentiments—depending on how they were previously interpreted. Topic 1 also has strong representation (around 55 lines), possibly related to commemorative or ceremonial aspects of the address. Topics 4 and 5 show slightly fewer occurrences but are still meaningfully present. Topic 4 could correspond to policy initiatives or calls to action, while Topic 5 may deal with foreign affairs or historical references, based on previous top term analysis. Interestingly, a few lines remain unclassified (NA). These are likely short or vague segments (“Thank you very much”), which don’t contain enough information for the LDA model to confidently assign them to a topic.
 
 The flow plot gives insight into the speech’s structure: We see that topics are interleaved throughout the text, rather than being grouped in large thematic blocks. This indicates that Trump frequently switches between themes, perhaps to maintain engagement or touch on multiple talking points in close succession. Topic 2 and Topic 3 appear consistently throughout, showing they are central pillars of the speech, while Topics 4 and 5 appear more sporadically.
 
 The topic modeling results for Trump’s 2025 address point to a speech with a strong focus on values, security, and public reassurance. The five topics extracted reflect recurring themes like patriotic rhetoric and government action, economic concerns, emotional appeals and recognition of individuals, national security and border control, and America’s place in the world. Thematic flow is consistent throughout the speech, with repeated references to key ideas like prosperity, protection, and leadership. This back-and-forth between emotional storytelling and assertive policy language keeps the speech engaging while reinforcing Trump’s narrative style. Overall, the topic distribution captures the dual nature of the address—both performative and policy-driven.
 
-With this being said and having analyzed Trump's speeches, we will now move on to Obama's speech. 
+With this being said and having analyzed Trump's speeches, we will now move on to Obama's speech.
 
-#### Obama 2013 speech 
+#### Obama 2013 speech
 
 We first need to clean the text and make it in a suitable format for practicing topic modeling.
 
-We will now convert it to a dataframe and apply tokenization. 
+We will now convert it to a dataframe and apply tokenization.
 
 ```{r}
 # Convert it to a dataframe
@@ -1109,7 +1146,7 @@ df_dtm_obama <- df_words_obama %>%
   cast_dtm(document = line, term = word, value = n)
 ```
 
-Once we have our cleaned and tokenized text represented as a DTM, we can use LDA to uncover the hidden thematic structure within the text. We will use K = 5 in order to be able to compare all the speeches at the end. 
+Once we have our cleaned and tokenized text represented as a DTM, we can use LDA to uncover the hidden thematic structure within the text. We will use K = 5 in order to be able to compare all the speeches at the end.
 
 ```{r}
 lda_obama <- LDA(df_dtm_obama, k = 5, control = list(seed = 1234))
@@ -1137,7 +1174,12 @@ top_terms_obama %>%
   coord_flip() +
   scale_x_reordered() +
   labs(title = "Top 10 terms per topic (Obama 2013)",
-       x = NULL, y = expression(beta))
+       x = NULL, y = expression(beta)) +
+  scale_fill_brewer(palette = "Set2") +
+  theme_minimal() +
+  theme(
+    axis.title = element_text(size = 10, face = "bold"),
+    strip.text = element_text(size = 10, face = "bold"))
 ```
 
 The results for President Obama’s speech appear thematically coherent and relatively well-balanced across the five topics. Topic 1 is dominated by terms like “energy”, “years”, “gas”, “power”, and “home”, suggesting a focus on energy policy, sustainability, and infrastructure. Topic 2, with terms such as “can”, “tonight”, “congress”, “jobs”, and “act”, reflects the persuasive and directive tone of the speech, particularly calls to legislative action or government cooperation. Topic 3 is clearly focused on employment and the economy, with words like “jobs”, “high”, “tax”, “education”, and “job”, making this theme highly relevant to middle-class concerns and recovery plans. Topic 4 contains terms like “time”, “cuts”, “work”, “need”, and “americans”, which likely reflects urgency in addressing fiscal responsibility or policy reform—possibly linked to the budget and deficit debates at the time. Topic 5 stands out with “vote”, “families”, “deserve”, “right”, and “must”, suggesting a civic-oriented or value-driven message, possibly touching on themes like voting rights, equality, and social justice.
@@ -1174,27 +1216,33 @@ df_obama_topics %>%
   count(topic) %>%
   ggplot(aes(x = factor(topic), y = n, fill = factor(topic))) +
   geom_col(show.legend = FALSE) +
-  labs(title = "Number of lines per topic", x = "Topic", y = "Line count")
+  labs(title = "Number of lines per topic", x = "Topic", y = "Line count") +
+  scale_fill_brewer(palette = "Set2") +
+  theme_minimal() +
+  theme(axis.title = element_text(size = 10, face = "bold"))
 
 #Topic flow throughout the speech
 df_obama_topics %>%
   mutate(line = as.numeric(document)) %>%
   ggplot(aes(x = line, y = topic, color = factor(topic))) +
   geom_point() +
-  labs(title = "Topic flow throughout the speech", x = "Line number", y = "Topic")
+  labs(title = "Topic flow throughout the speech", x = "Line number", y = "Topic") +
+  scale_fill_brewer(palette = "Set2") +
+  theme_minimal() +
+  theme(axis.title = element_text(size = 10, face = "bold"))
 ```
 
 The distribution of topics across the speech is fairly balanced, as shown in the bar chart. All five topics have a similar number of lines, suggesting that Obama structured his address to cover multiple key areas fairly evenly. From the sample lines per topic: Topic 1 includes lines about legal immigration, hardworking Americans, and national remembrance. This points to citizenship, values, and national unity. Topic 2 seems more oriented toward policy and legislative action, featuring words like “congress”, “act”, and “jobs”. Topic 3 has strong economic content: lines on job creation, infrastructure, manufacturing, and the Affordable Care Act. This clearly represents the economy and domestic programs. Topic 4 lines include budget-focused language such as “cuts”, “work”, “need”, and “time”, highlighting urgency and economic reform. Topic 5 involves more emotive and civic language (“vote”, “families”, “deserve”, “unfinished task”), signaling a call to civic responsibility and social justice. The flow plot shows that Obama alternates between topics rather than presenting them in large uninterrupted blocks. This kind of thematic interweaving suggests a rhetorical strategy that ties together different priorities—values, legislation, economy—within broader arguments.
 
 Overall, thematic analysis of Obama’s 2013 State of the Union shows a well-structured and balanced speech, covering a range of key issues. The five topics identified through LDA span themes like immigration and national values, economic recovery and job creation, legislative action, fiscal reform, and civic responsibility. The flow of topics throughout the speech highlights Obama’s rhetorical strategy of revisiting core themes rather than isolating them into separate sections. This helps maintain coherence and momentum, while also reinforcing the connection between policy goals and American values. So, the topic distribution and progression align well with the broader tone and goals of the address.
 
-We will move on to the last discourse, Biden's 2021 speech. 
+We will move on to the last discourse, Biden's 2021 speech.
 
 #### Biden 2021 speech
 
-We first need to clean the text and make it in a suitable format for practicing topic modeling. 
+We first need to clean the text and make it in a suitable format for practicing topic modeling.
 
-We will now convert it to a dataframe and apply tokenization. 
+We will now convert it to a dataframe and apply tokenization.
 
 ```{r}
 # Convert it to a dataframe
@@ -1215,7 +1263,7 @@ df_dtm_biden <- df_words_biden %>%
   cast_dtm(document = line, term = word, value = n)
 ```
 
-Once we have our cleaned and tokenized text represented as a DTM, we can use LDA to uncover the hidden thematic structure within the text. We will use K = 5 in order to be able to compare all the speeches at the end. 
+Once we have our cleaned and tokenized text represented as a DTM, we can use LDA to uncover the hidden thematic structure within the text. We will use K = 5 in order to be able to compare all the speeches at the end.
 
 ```{r}
 lda_biden <- LDA(df_dtm_biden, k = 5, control = list(seed = 1234))
@@ -1243,10 +1291,15 @@ top_terms_biden %>%
   coord_flip() +
   scale_x_reordered() +
   labs(title = "Top 10 terms per topic (Biden 2021)",
-       x = NULL, y = expression(beta))
+       x = NULL, y = expression(beta)) +
+  scale_fill_brewer(palette = "Set2") +
+  theme_minimal() +
+  theme(
+    axis.title = element_text(size = 10, face = "bold"),
+    strip.text = element_text(size = 10, face = "bold"))
 ```
 
-In this case, several high-frequency words like “we're”, “it's”, and “one” appeared in multiple topics without adding real semantic value. Removing these can help the model focus on more meaningful content and improve the clarity and coherence of the topics, so, we need to create a custom list of stopwords and do the whole process again. 
+In this case, several high-frequency words like “we're”, “it's”, and “one” appeared in multiple topics without adding real semantic value. Removing these can help the model focus on more meaningful content and improve the clarity and coherence of the topics, so, we need to create a custom list of stopwords and do the whole process again.
 
 ```{r}
 biden_stopwords <- c("it’s", "we’re", "i’ve", "that’s", "let’s", "one", "just", "can", "said", "know", "ever", "get", "now", "also", "percent", "act", "america", "american")
@@ -1285,7 +1338,12 @@ top_terms_biden %>%
   coord_flip() +
   scale_x_reordered() +
   labs(title = "Top 10 terms per topic (Biden 2021 – Improved Cleaning)",
-       x = NULL, y = expression(beta))
+       x = NULL, y = expression(beta)) +
+  scale_fill_brewer(palette = "Set2") +
+  theme_minimal() +
+  theme(
+    axis.title = element_text(size = 10, face = "bold"),
+    strip.text = element_text(size = 10, face = "bold"))
 ```
 
 The refined output from Biden's 2021 speech shows a much clearer thematic structure. Topic 1 features terms like century, years, world, and tax, suggesting a focus on long-term planning and economic positioning of the U.S. in the 21st century. Topic 2, with words such as jobs, power, plan, change, and investments, clearly reflects economic recovery and industrial policy, a recurring theme in Biden's economic messaging. Topic 3 blends terms like families, care, jobs, and need, pointing toward social policy, healthcare, and family support. Topic 4, containing words like pass, congress, right, and pandemic, indicates legislative appeals and crisis response, likely tied to COVID-19 and civil rights discussions. Lastly, Topic 5 uses keywords such as people, democracy, gun, opportunity, and justice, all of which suggest a strong emphasis on American identity, civic values, and calls for unity. Overall, the model has successfully isolated key policy pillars of Biden’s speech—economic strategy, healthcare, legislative action, and democratic ideals—with clear differentiation between topics.
@@ -1327,7 +1385,10 @@ df_biden_assigned %>%
   geom_col(show.legend = FALSE) +
   labs(title = "Number of lines per topic (Biden 2021)",
        x = "Topic",
-       y = "Line count")
+       y = "Line count") +
+  scale_fill_brewer(palette = "Set2") +
+  theme_minimal() +
+  theme(axis.title = element_text(size = 10, face = "bold"))
 
 #Topic flow throughout the speech
 df_biden_assigned %>%
@@ -1336,7 +1397,9 @@ df_biden_assigned %>%
   labs(title = "Topic flow throughout the speech (Biden 2021)",
        x = "Line number",
        y = "Topic") +
-  theme_minimal()
+  scale_fill_brewer(palette = "Set2") +
+  theme_minimal() +
+  theme(axis.title = element_text(size = 10, face = "bold"))
 ```
 
 The topic model for President Biden’s 2021 speech reveals five distinct but interconnected themes. One of the key topics centers around policy and economic recovery, shown by terms like “jobs,” “plan,” and “families,” pointing to the administration’s emphasis on employment and pandemic relief. Another dominant topic revolves around legislative urgency and action, with words like “pass,” “congress,” and “right,” suggesting calls for cooperation in moving forward with bills. Additionally, “democracy,” “justice,” and “opportunity” indicate a broader theme around civil values and rebuilding trust in American institutions. Looking at the topic flow, we can see that the distribution of themes is relatively balanced, with each topic receiving significant attention throughout the speech. This suggests Biden aimed for an even rhetorical structure, frequently looping back to reinforce ideas rather than dividing the speech into rigid thematic blocks. The speech opens and closes with references to unity, democracy, and national resilience—helping to tie the more technical sections together with an overarching narrative about hope and collective responsibility.
@@ -1345,7 +1408,7 @@ Overall, thematic analysis of Biden’s 2021 address shows a speech grounded in 
 
 #### Speech comparison
 
-We will now create a thematic comparison between the four speeches (Trump 2017, Trump 2025, Obama 2013 and Biden 2021) using a single LDA model. We will first unite all the texts in one dataframe. 
+We will now create a thematic comparison between the four speeches (Trump 2017, Trump 2025, Obama 2013 and Biden 2021) using a single LDA model. We will first unite all the texts in one dataframe.
 
 ```{r}
 # Create dataframes
@@ -1359,7 +1422,7 @@ df_all <- bind_rows(df_trump2017, df_trump2025, df_obama2013, df_biden2021) %>%
   mutate(document = paste(president, line, sep = "_"))  # unique ID by line
 ```
 
-We will apply tokenization and cleaning. 
+We will apply tokenization and cleaning.
 
 ```{r}
 # Personalized stopwords
@@ -1372,7 +1435,7 @@ df_words_all <- df_all %>%
   filter(!str_detect(word, "^[0-9]+$"))
 ```
 
-We will proceed by creating a DTM and applying LDA. 
+We will proceed by creating a DTM and applying LDA.
 
 ```{r}
 # DTM
@@ -1384,7 +1447,7 @@ df_dtm_all <- df_words_all %>%
 lda_all <- LDA(df_dtm_all, k = 5, control = list(seed = 1234))
 ```
 
-And we can visualize it too. 
+And we can visualize it too.
 
 ```{r}
 # Extract gamma
@@ -1404,12 +1467,16 @@ ggplot(gamma_summary, aes(x = president, y = mean_gamma, fill = factor(topic))) 
        y = "Proportion of Topics",
        fill = "Topic") +
   scale_y_continuous(labels = scales::percent_format()) +
-  theme_minimal()
+  scale_fill_brewer(palette = "Set2") +
+  theme_minimal() +
+  theme(
+    axis.title = element_text(size = 10, face = "bold"),
+    strip.text = element_text(size = 10, face = "bold"))
 ```
 
 The stacked bar chart shows how each president emphasized the five discovered topics in their speeches. Biden’s 2021 address displays the most balanced distribution among all five topics, with Topic 1 (possibly international affairs and future vision) being slightly more dominant. Obama’s 2013 speech stands out for its stronger focus on Topic 3, which may relate to job creation, economic recovery, or education. Meanwhile, Trump’s 2017 and 2025 speeches share very similar proportions, though the 2025 speech places noticeably more weight on Topic 5, potentially reflecting themes like national identity, patriotism, or calls for unity. Interestingly, Topic 4, which could involve policy initiatives or legislative action, seems more present in Trump’s 2017 speech than in Obama’s or Biden’s. This might highlight how Trump used his first address to stress concrete policy rollouts.
 
-We can also try to make a comparison between the 4 speeches with: 
+We can also try to make a comparison between the 4 speeches with:
 
 ```{r}
 # Numerical summary of how much each topic appears across each speech
@@ -1459,7 +1526,12 @@ ggplot(top_terms_by_president, aes(x = reorder(term, beta), y = beta, fill = pre
   facet_wrap(~ president + topic, scales = "free", ncol = 5) +
   coord_flip() +
   labs(title = "Top Terms per Topic and President",
-       x = "Term", y = "Beta")
+       x = "Term", y = "Beta") +
+  scale_fill_brewer(palette = "Set2") +
+  theme_minimal() +
+  theme(
+    axis.title = element_text(size = 10, face = "bold"),
+    strip.text = element_text(size = 10, face = "bold"))
 ```
 
 Topic 1 appears to focus on temporal or national framing (words like “years,” “world,” “century,” “energy,” “country”). Biden and Obama use temporal markers like “century” and “years” more heavily, whereas Trump 2017 emphasizes “people” and “country,” and Trump 2025 introduces less semantically rich terms like “tonight” and “members.” This suggests that Biden and Obama frame their discourse within broader historical or national narratives, while Trump’s tone is more anchored in people and immediacy. Topic 2 emphasizes legislative or executive action; terms like “jobs,” “act,” “congress,” “plan,” “president.” Biden leads with “jobs” and “plan,” showing a proactive, policy-driven agenda. Obama includes “congress,” “can,” and “tonight,” indicating direct appeals for action. Trump 2017 uses “today,” “world,” and “nation” to ground his points in current national challenges. Trump 2025's focus shifts to adjectives like “good” and “beautiful,” reflecting a more rhetorical or persuasive tone rather than action-based content.
@@ -1470,7 +1542,7 @@ Topic 3 contains terms related to economic or systemic issues (“work,” “ta
 
 Although this comparison can give us clear information differences, we will try to compare each president's speeches in a more separate way. First, when comparing Trump’s 2017 and 2025 speeches, one of the most striking differences lies in the dominant topics and how they are introduced throughout the speech. In 2017, Trump's address focused heavily on national security, immigration, and economic revitalization, with clear references to restoring borders, protecting American workers, and bringing manufacturing back to the U.S. These topics appeared in a structured pattern throughout the speech, giving a sense of control and alignment with his "America First" platform. By contrast, the 2025 speech, while still retaining a populist tone, appeared slightly more fragmented, with greater emphasis on broad themes such as national identity, citizen stories, and social appeals. This shift suggests a subtle change in rhetorical strategy (from implementation of promises to reflecting on outcomes and reinforcing emotional appeal).
 
-In terms of topic flow, the 2017 speech demonstrated more distinct topic blocks, with each section clearly dedicated to a different policy domain, including healthcare, military, and economic policy. The 2025 speech, on the other hand, showed a more combined flow of topics, often mixing references to personal stories, political achievements, and calls for unity within the same segments. This may indicate an attempt to appeal to a broader audience or to reflect a matured presidential persona that integrates policies within a larger national narrative. Another noteworthy point is the emotional tone. Trump’s 2017 speech, while firm and assertive, maintained a business-like delivery that aligned with his image as an outsider entering politics to "clean up Washington." The language in the 2025 speech, however, leaned more heavily into emotional and patriotic appeals, with a notable increase in references to individuals, values, and legacy. This emotional shift could be interpreted as an effort to consolidate public support and present his leadership in a more reflective, almost legacy-defining light.  Finally, when looking at the vocabulary and keywords driving the topic models, we observe that terms in the 2017 speech were more policy-oriented ("jobs," "tax," "border," "security"), whereas the 2025 topics included words like "people," "freedom," "back," and "great," suggesting a move toward symbolism and shared identity rather than just concrete legislative goals. This linguistic change further supports the idea that Trump’s later speech pivoted from promises and plans to affirming a collective narrative, possibly to shape public memory of his administration.
+In terms of topic flow, the 2017 speech demonstrated more distinct topic blocks, with each section clearly dedicated to a different policy domain, including healthcare, military, and economic policy. The 2025 speech, on the other hand, showed a more combined flow of topics, often mixing references to personal stories, political achievements, and calls for unity within the same segments. This may indicate an attempt to appeal to a broader audience or to reflect a matured presidential persona that integrates policies within a larger national narrative. Another noteworthy point is the emotional tone. Trump’s 2017 speech, while firm and assertive, maintained a business-like delivery that aligned with his image as an outsider entering politics to "clean up Washington." The language in the 2025 speech, however, leaned more heavily into emotional and patriotic appeals, with a notable increase in references to individuals, values, and legacy. This emotional shift could be interpreted as an effort to consolidate public support and present his leadership in a more reflective, almost legacy-defining light. Finally, when looking at the vocabulary and keywords driving the topic models, we observe that terms in the 2017 speech were more policy-oriented ("jobs," "tax," "border," "security"), whereas the 2025 topics included words like "people," "freedom," "back," and "great," suggesting a move toward symbolism and shared identity rather than just concrete legislative goals. This linguistic change further supports the idea that Trump’s later speech pivoted from promises and plans to affirming a collective narrative, possibly to shape public memory of his administration.
 
 Second, when comparing Trump with Obama, the contrast in rhetorical structure and thematic distribution becomes even more pronounced. Obama’s 2013 State of the Union address demonstrated a high degree of topical coherence, with economic recovery and legislative priorities being dominant. His speech emphasized forward-thinking policies (green energy, education reform) and maintained a tone of measured optimism. In contrast, Trump’s speeches, especially in 2017, focused more on disruption and change, using sharper, more action-oriented language to underline a break from previous administrations. This difference highlights a broader ideological contrast: Obama positioned himself as a unifier and reformer, while Trump framed himself as a reformer through confrontation. Another point of difference is how both presidents framed national identity and values. Obama’s discourse often integrated diversity, inclusivity, and opportunity as core American values, whereas Trump centered his discourse around sovereignty, protectionism, and strength. This is evident in the dominant topics from their respective models where Obama’s speech frequently referred to “families,” “education,” “jobs,” and “future,” Trump’s top terms included “border,” “order,” “enforcement,” and “America First.” These contrasting priorities reflect not just different political agendas but also different visions of American society.
 
@@ -1482,11 +1554,11 @@ Overall, the topic modeling analysis across the four presidential speeches highl
 
 ## Conclusion
 
-After analyzing the inaugural speeches of Trump (2017 and 2025), Obama (2013), and Biden (2021) through sentiment analysis, term frequency (TF-IDF), and topic modeling, it becomes clear that political language is not merely a vehicle for information but a powerful tool for shaping emotion, identity, and public perception. Each president, through their choice of words, constructs a narrative that reflects not only their policy agenda but also the historical and social moment they are responding to.
+After analyzing the speeches of Trump (2017 and 2025), Obama (2013), and Biden (2021) through sentiment analysis, term frequency (TF-IDF), and topic modeling, it becomes clear that political language is not merely a vehicle for information but a powerful tool for shaping emotion, identity, and public perception. Each president, through their choice of words, constructs a narrative that reflects not only their policy agenda but also the historical and social moment they are responding to.
 
 In the sentiment analysis phase, we observed notable contrasts. Trump’s 2017 address stood out for its high proportion of negative terms, with repeated references to crisis, danger, and threats—painting a stark portrait of a nation in decline. Obama and Biden, by contrast, employed a more optimistic tone, with positive words centering around unity, hope, and shared purpose. Interestingly, Trump’s 2025 speech, while still grounded in warnings and assertive language, integrated a noticeably higher number of joyful and uplifting words—suggesting a possible rhetorical shift toward a more emotionally engaging or legacy-driven tone.
 
-The frequency and TF-IDF analysis helped spotlight not only commonly used terms but those uniquely representative of each speech. Biden’s emphasis on terms like “pandemic” and “vaccine” anchors his message in the urgency of post-COVID recovery. Obama’s use of words like “initiative” and “encourage” reflects a call for action and cooperation, whereas Trump’s lexical focus in both speeches leaned toward protectionism and security—terms such as “border,” “fight,” and “illegal” being particularly prominent. By filtering out generic or repetitive words, the true thematic fingerprints of each presidency became more visible.
+The frequency and TF-IDF analysis helped spotlight not only commonly used terms but those uniquely representative of each speech. Biden’s emphasis on terms like *pandemic* and *vaccinated* anchors his message in the urgency of post-COVID recovery. Obama’s use of words like *let's* and *encourage* reflects a call for action and cooperation, whereas Trump’s lexical focus in both speeches leaned toward protectionism and security—terms such as *immigrant*, *ukraine*, and *inflation* being particularly prominent.
 
 Topic modeling, finally, allowed us to delve deeper into the structural and rhetorical strategies behind each address. Obama’s and Biden’s speeches were thematically woven, cycling through economic, social, and moral themes in a balanced, fluid manner. Trump’s 2017 speech was more segmented, with each policy area clearly separated, underscoring a methodical presentation of issues. However, the 2025 speech reflected a more blended narrative approach—one where emotion, identity, and national pride are interlaced with policy and political rhetoric. This evolution suggests a shift from outsider urgency to legacy consolidation, where storytelling becomes just as important as action plans.
 
