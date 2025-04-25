@@ -24,6 +24,8 @@ It would indeed have been more appropriate to use the inaugural speeches that di
 
 In order to be able to analyze these texts as comprehensively as possible, we will use three text analysis techniques. The three techniques chosen are: *Sentiment Analysis*, *Term Frequency* and *Topic Modeling*. These tools will be used separately, but will be presented together at the end of the work in order to draw conclusive results on the different discourses. In particular, we are very interested in analysing the results of topic modelling, as it will be useful to group and complement the conclusions drawn from the first two techniques.
 
+Here is the github link to the repository in order to be able to access the data documents (https://github.com/pbloas/speech_analysis)
+
 ## Libraries
 
 Firstly, we load the libraries that will be used in this project.
